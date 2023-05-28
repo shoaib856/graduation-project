@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Signika:wght@400;500;700&display=swap");
+
+* {
+  @apply font-Signika;
+}
+html {
+  @apply bg-slate-200/50;
+}
+.active {
+  @apply text-white;
+}
+.list-group-item:hover {
+  @apply bg-emerald-400 text-white;
+}
+.list-group-item.active {
+  @apply bg-emerald-600 text-white border-none hover:text-white w-full;
+}
+.list-group-item.non-emerald-hover:hover {
+  @apply bg-white text-slate-700 border-none w-full hover:bg-gray-200/50;
+}
+.link-btn {
+  @apply bg-emerald-600 text-white hover:text-black px-6 py-[5px] rounded-md hover:bg-emerald-400 text-xl;
+}
+.form-field {
+  @apply focus:border-emerald-400 focus:shadow-md focus:shadow-emerald-400 text-lg text-slate-700;
+}
+.file-choice-field {
+  @apply text-white focus:text-white bg-emerald-400 focus:bg-emerald-600 hover:bg-emerald-600 focus:border-emerald-400 focus:shadow-none font-semibold text-lg;
+}
+.custom-bg-img {
+  @apply text-9xl w-fit bg-opacity-50 bg-emerald-600 mx-auto mb-5;
+  &.br-1 {
+    border-radius: 19% 81% 22% 78% / 21% 78% 22% 79%;
+    -webkit-border-radius: 19% 81% 22% 78% / 21% 78% 22% 79%;
+    -moz-border-radius: 19% 81% 22% 78% / 21% 78% 22% 79%;
+    -ms-border-radius: 19% 81% 22% 78% / 21% 78% 22% 79%;
+    -o-border-radius: 19% 81% 22% 78% / 21% 78% 22% 79%;
+  }
+  &.br-2 {
+    border-radius: 64% 36% 50% 50% / 58% 78% 22% 42%;
+    -webkit-border-radius: 64% 36% 50% 50% / 58% 78% 22% 42%;
+    -moz-border-radius: 64% 36% 50% 50% / 58% 78% 22% 42%;
+    -ms-border-radius: 64% 36% 50% 50% / 58% 78% 22% 42%;
+    -o-border-radius: 64% 36% 50% 50% / 58% 78% 22% 42%;
+  }
+  &.br-3 {
+    border-radius: 23% 77% 41% 59% / 27% 43% 57% 73%;
+    -webkit-border-radius: 23% 77% 41% 59% / 27% 43% 57% 73%;
+    -moz-border-radius: 23% 77% 41% 59% / 27% 43% 57% 73%;
+    -ms-border-radius: 23% 77% 41% 59% / 27% 43% 57% 73%;
+    -o-border-radius: 23% 77% 41% 59% / 27% 43% 57% 73%;
+  }
+}
+.close-btn {
+  @apply text-3xl text-red-400 hover:text-red-600 cursor-pointer;
+}
+.loader {
+  @apply fixed left-0 top-0 w-full h-full z-[10000] bg-white/5 flex justify-center items-center backdrop-blur;
+}
+.full-height {
+  min-height: calc(100vh - 212px);
+  @apply p-1 flex justify-center items-center bg-slate-200/50;
+}
+.hidden-animation {
+  @apply opacity-0 transition-all duration-1000 blur-md;
+}
+.hidden-animation-left {
+  @apply opacity-0 transition-all duration-1000 blur-md -translate-x-full;
+}
+.hidden-animation-right {
+  @apply opacity-0 transition-all duration-1000 blur-md translate-x-full;
+}
+
+.show-animation {
+  @apply opacity-100 blur-0 translate-x-0;
+}
+
+.cover-img {
+  @apply relative rounded-xl before:rounded-xl before:bg-white/5 before:backdrop-blur-sm before:absolute before:top-0 before:left-0 before:w-full before:h-full;
+  background-image: url("./assets/images/vibrant-green-plants.jpg");
+}
+.nav-pills {
+  .nav-link.active,
+  .show > .nav-link {
+    @apply bg-emerald-600;
+  }
+  .nav-link:not(.active) {
+    @apply text-emerald-600 hover:text-emerald-800;
+  }
+}
