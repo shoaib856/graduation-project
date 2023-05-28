@@ -126,8 +126,8 @@ function NavBar() {
           </Offcanvas.Header>
           <Offcanvas.Body className="px-1">
             <Nav className="items-center font-bold py-3 list-group list-group-horizontal-md">
-              {["Home", "About", "Contact"].map((tab, i) => {
-                const links = ["./", "about", "contact"];
+              {["Home", "About", "Contact"].map((tab, i)=>{
+                const links = ["/", "/about", "/contact"];
                 return (
                   <NavLink
                     key={tab}
@@ -184,7 +184,7 @@ function NavBar() {
               <div className="py-2">
                 <Link
                   onClick={() => setShowList(false)}
-                  to={"/graduation-project/profile/"}
+                  to={"/profile/"}
                   className="flex items-center gap-2 px-4 py-2 text-slate-800 hover:bg-gray-200 "
                 >
                   <PersonFill />
