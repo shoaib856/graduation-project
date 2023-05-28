@@ -1,15 +1,17 @@
-import React, { lazy, startTransition } from "react";
+import React, {lazy, startTransition} from "react";
 import ReactDOM from "react-dom/client";
 import {
-  createBrowserRouter,
-  redirect,
-  RouterProvider,
+    createBrowserRouter,
+    redirect,
+    RouterProvider,
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import "./index.scss";
 
-import { RecoilRoot } from "recoil";
+import {RecoilRoot} from "recoil";
+import {DevSupport} from "@react-buddy/ide-toolbox";
+import {ComponentPreviews, useInitial} from "./dev/index.js";
 
 // layouts
 const RootLayout = lazy(() => import("./layout/rootLayout"));
@@ -18,7 +20,7 @@ const ProfileLayout = lazy(() => import("./layout/ProfileLayout"));
 const FeaturesLayout = lazy(() => import("./layout/featuresLayout"));
 const TagsLayout = lazy(() => import("./layout/tagLayout"));
 const EditUserByAdminLayout = lazy(() =>
-  import("./layout/EditUserByAdminLayout")
+    import("./layout/EditUserByAdminLayout")
 );
 
 // basic pages without auth
@@ -49,124 +51,128 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const PlantDiseaseApp = lazy(() => import("./pages/plant-disease-app"));
 
 const router = createBrowserRouter([
-  {
-    path: "graduation-project/",
-    element: <RootLayout />,
-    children: [
-      {
-        index: true,
-        element: <Home />,
-      },
-      {
-        path: "register",
-        element: <Register />,
-      },
-      {
-        path: "app",
-        element: <PlantDiseaseApp />,
-      },
-      {
-        path: "profile",
-        element: <ProfileLayout />,
+    {
+        path: "/",
+        element: <RootLayout/>,
         children: [
-          {
-            index: true,
-            element: <Profile />,
-          },
-          {
-            path: "edit-pwd",
-            element: <EditPwd />,
-          },
-          {
-            path: "update-user-img",
-            element: <UpdateUserImg />,
-          },
-          {
-            path: "devices",
-            element: <Devices />,
-          },
+            {
+                index: true,
+                element: <Home/>,
+            },
+            {
+                path: "register",
+                element: <Register/>,
+            },
+            {
+                path: "app",
+                element: <PlantDiseaseApp/>,
+            },
+            {
+                path: "profile",
+                element: <ProfileLayout/>,
+                children: [
+                    {
+                        index: true,
+                        element: <Profile/>,
+                    },
+                    {
+                        path: "edit-pwd",
+                        element: <EditPwd/>,
+                    },
+                    {
+                        path: "update-user-img",
+                        element: <UpdateUserImg/>,
+                    },
+                    {
+                        path: "devices",
+                        element: <Devices/>,
+                    },
+                ],
+            },
+            {
+                path: "dashboard",
+                element: <DashboardLayout/>,
+                children: [
+                    {
+                        index: true,
+                        element: <Dashboard/>,
+                    },
+                    {
+                        path: "user-details/:id",
+                        element: <EditUserByAdminLayout/>,
+                        children: [
+                            {
+                                index: true,
+                                element: <Profile/>,
+                            },
+                            {
+                                path: "edit-pwd",
+                                element: <EditPwd/>,
+                            },
+                            {
+                                path: "update-user-img",
+                                element: <UpdateUserImg/>,
+                            },
+                        ],
+                    },
+                    {
+                        path: "add-user",
+                        element: <Register/>,
+                    },
+                    {
+                        path: "features",
+                        element: <FeaturesLayout/>,
+                        children: [
+                            {
+                                index: true,
+                                element: <AddFeature/>,
+                            },
+                            {
+                                path: "feature-details/:id",
+                                element: <FeatureDetails/>,
+                            },
+                        ],
+                    },
+                    {
+                        path: "tags",
+                        element: <TagsLayout/>,
+                        children: [
+                            {
+                                index: true,
+                                element: <AddTag/>,
+                            },
+                            {
+                                path: "tag-details/:id",
+                                element: <TagDetails/>,
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                path: "about",
+                element: <About/>,
+            },
+            {
+                path: "contact",
+                element: <Contact/>,
+            },
+            {
+                path: "*",
+                element: <NotFound/>,
+            },
         ],
-      },
-      {
-        path: "dashboard",
-        element: <DashboardLayout />,
-        children: [
-          {
-            index: true,
-            element: <Dashboard />,
-          },
-          {
-            path: "user-details/:id",
-            element: <EditUserByAdminLayout />,
-            children: [
-              {
-                index: true,
-                element: <Profile />,
-              },
-              {
-                path: "edit-pwd",
-                element: <EditPwd />,
-              },
-              {
-                path: "update-user-img",
-                element: <UpdateUserImg />,
-              },
-            ],
-          },
-          {
-            path: "add-user",
-            element: <Register />,
-          },
-          {
-            path: "features",
-            element: <FeaturesLayout />,
-            children: [
-              {
-                index: true,
-                element: <AddFeature />,
-              },
-              {
-                path: "feature-details/:id",
-                element: <FeatureDetails />,
-              },
-            ],
-          },
-          {
-            path: "tags",
-            element: <TagsLayout />,
-            children: [
-              {
-                index: true,
-                element: <AddTag />,
-              },
-              {
-                path: "tag-details/:id",
-                element: <TagDetails />,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        path: "about",
-        element: <About />,
-      },
-      {
-        path: "contact",
-        element: <Contact />,
-      },
-      {
-        path: "*",
-        element: <NotFound />,
-      },
-    ],
-  },
+    },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <RecoilRoot>
-      <RouterProvider router={router} />
-    </RecoilRoot>
-  </React.StrictMode>
+    <React.StrictMode>
+        <RecoilRoot>
+            <DevSupport ComponentPreviews={ComponentPreviews}
+                        useInitialHook={useInitial}
+            >
+                <RouterProvider router={router}/>
+            </DevSupport>
+        </RecoilRoot>
+    </React.StrictMode>
 );
