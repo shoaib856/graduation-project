@@ -114,7 +114,7 @@ function Register() {
 
   const handleLoggedIn = () => {
     if (registerLocation) {
-      navigate("/graduation-project/");
+      navigate("/");
       toastMsg("info", "Logged in Already");
     }
   };

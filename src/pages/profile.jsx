@@ -212,7 +212,7 @@ function Profile() {
         }
       )
       .then((res) => {
-        navigate({ pathname: "/graduation-project/" });
+        navigate({ pathname: "/" });
         toastMsg("success", res.data.message);
         setLoading(false);
         setAuth(null);

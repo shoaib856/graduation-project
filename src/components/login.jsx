@@ -40,7 +40,7 @@ function Login({ show, onHide }) {
             id: res?.data.user_id,
           })
         );
-        navigate("/graduation-project/");
+        navigate("/");
         setLoader(false);
       })
       .catch((err) => {
@@ -98,7 +98,7 @@ function Login({ show, onHide }) {
         <span className="mx-auto">
           Haven't you an account?{"  "}
           <Link
-            to="/graduation-project/register"
+            to="/register"
             className="text-emerald-600 hover:text-emerald-400 underline underline-offset-2"
             onClick={onHide}
           >
