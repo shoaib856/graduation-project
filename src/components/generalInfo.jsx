@@ -4,7 +4,7 @@ const GeneralInfo = ({ errors, touched, formikProps }) => {
   return (
     <>
       <Row className="mb-2">
-        <Form.FloatingLabel as={Col} className="pr-1">
+        <Form.FloatingLabel label="First Name" as={Col} className="pr-1">
           <Form.Control
             {...formikProps("firstName")}
             autoComplete="nope"
@@ -14,9 +14,7 @@ const GeneralInfo = ({ errors, touched, formikProps }) => {
             className="form-field"
             required
           />
-          <Form.Label className="!pl-6" htmlFor="firstName">
-            First Name
-          </Form.Label>
+          
           {touched.firstName && errors.firstName && (
             <Alert
               variant="danger"
@@ -26,7 +24,7 @@ const GeneralInfo = ({ errors, touched, formikProps }) => {
             </Alert>
           )}
         </Form.FloatingLabel>
-        <Form.FloatingLabel as={Col} className="pl-1">
+        <Form.FloatingLabel label="Last Name" as={Col} className="pl-1">
           <Form.Control
             {...formikProps("lastName")}
             id="lastName"
@@ -36,9 +34,7 @@ const GeneralInfo = ({ errors, touched, formikProps }) => {
             className="form-field"
             required
           />
-          <Form.Label className="!pl-4" htmlFor="lastName">
-            Last Name
-          </Form.Label>
+          
           {touched.lastName && errors.lastName && (
             <Alert
               variant="danger"

@@ -4,7 +4,7 @@ function Btn({ model, isLoading, modelType }) {
   return (
     <Button
       className="max-w-fit flex items-center gap-2 !text-lg !border-none !bg-emerald-800 hover:!bg-emerald-500 focus:!shadow-none focus-visible:!shadow-none disabled:!bg-emerald-900"
-      onClick={() => model(modelType)}
+      onClick={() => model()}
       disabled={isLoading}
     >
       {isLoading ? (
@@ -16,7 +16,7 @@ function Btn({ model, isLoading, modelType }) {
             role="status"
             aria-hidden="true"
           />
-          Processing
+          Processing...
         </>
       ) : (
         `Process ${modelType}`
