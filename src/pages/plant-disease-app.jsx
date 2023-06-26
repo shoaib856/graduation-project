@@ -20,11 +20,12 @@ function PlantDiseaseApp() {
     console.log("test...");
     await axios
       .post(
-        "https://test-ml-api.onrender.com/api/imagesModel/plantClassification",
+        "https://test-ml-api.onrender.com/api/imagesModel/diseaseDetection",
         image,
         {
           headers: {
             "x-auth-token": auth.token,
+            "Content-Type": "multipart/form-data",
           },
         }
       )

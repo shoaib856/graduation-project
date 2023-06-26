@@ -92,3 +92,7 @@ html {
     @apply text-emerald-600 hover:text-emerald-800;
   }
 }
+
+.form-btn {
+  @apply text-white px-4 py-1 rounded-md bg-emerald-400 border-none shadow-none active:bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-200 disabled:text-emerald-900 font-bold text-lg;
+}

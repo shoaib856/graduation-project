@@ -1,5 +1,5 @@
 import axios from "../api/axios";
-import { Button, ButtonGroup, Container, Form } from "react-bootstrap";
+import { Container, Form } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { toastMsg } from "../components/message-toast";
@@ -14,6 +14,7 @@ import LocationInfo from "../components/locationInfo";
 import SpecificInfo from "../components/specificInfo";
 import setCookie from "../hooks/setCookie";
 import * as Yup from "yup";
+import Stepper from "../components/stepper";
 
 function Register() {
   const location = useLocation();
@@ -129,24 +130,20 @@ function Register() {
     auth && handleLoggedIn();
     getFeatures();
   }, []);
+  const steps = [
+    "General Information",
+    "Location Information",
+    "Specific Information",
+  ];
   return (
-    <div className="flex flex-col gap-2 text-emerald-600 w-full p-4 bg-white rounded-xl shadow-xl">
+    <div className="flex flex-col gap-2 text-emerald-600 max-w-3xl w-full p-4 bg-white rounded-xl shadow-xl">
       <Form onSubmit={formik.handleSubmit} autoComplete="off">
-        <div className="flex justify-between items-center p-2 rounded-lg mb-2">
-          <div className="flex items-center">
-            <div className="text-2xl font-bold">
-              {activeStep === 1
-                ? "General Information"
-                : activeStep === 2
-                ? "Location Information"
-                : "Specific Information"}
-            </div>
-          </div>
-          <div className="flex items-center">
-            <div className="text-2xl font-bold">{activeStep}/3</div>
-          </div>
-        </div>
-        <Container fluid className="p-0">
+        <Stepper
+          steps={steps}
+          activeStep={activeStep}
+          setActiveStep={setActiveStep}
+        />
+        <Container className="p-0 mx-auto">
           {activeStep === 1 ? (
             <GeneralInfo
               errors={formik.errors}
@@ -170,44 +167,44 @@ function Register() {
             )
           )}
         </Container>
-        <Form.Group className="flex justify-center pt-4" as={ButtonGroup}>
-          {activeStep > 1 && (
-            <Button
-              onClick={() => setActiveStep(activeStep - 1)}
-              type="button"
-              className="bg-emerald-400 border-none !shadow-none hover:!bg-emerald-600 disabled:bg-emerald-200 disabled:text-emerald-900 font-bold text-lg"
-            >
-              Back
-            </Button>
-          )}
+        <Form.Group className="flex justify-between pt-4">
+          <button
+            onClick={() => setActiveStep(activeStep - 1)}
+            type="button"
+            className="form-btn"
+            disabled={activeStep === 1}
+          >
+            Back
+          </button>
+
           {activeStep === 3 ? (
-            <Button
+            <button
               type="submit"
-              className="bg-emerald-400 border-none !shadow-none hover:!bg-emerald-600 disabled:bg-emerald-200 disabled:text-emerald-900 font-bold text-lg"
+              className="form-btn"
               disabled={
                 formik.isSubmitting || !(formik.isValid && formik.dirty)
               }
             >
               {formik.isSubmitting ? "Submitting..." : "Submit"}
-            </Button>
+            </button>
           ) : (
-            <Button
+            <button
               onClick={() => setActiveStep(activeStep + 1)}
               type="button"
-              className="bg-emerald-400 border-none !shadow-none hover:!bg-emerald-600 disabled:bg-emerald-200 disabled:text-emerald-900 font-bold text-lg"
+              className="form-btn"
             >
               Next
-            </Button>
+            </button>
           )}
         </Form.Group>
       </Form>
       {registerLocation && (
-        <footer className="text-black text-center mt-4 font-normal">
+        <footer className="text-black font-normal">
           <p>
-            Have you an account already?
+            Have an account?
             <button
               onClick={() => setShowLogin(true)}
-              className="text-emerald-600 hover:text-emerald-400 cursor-pointer underline underline-offset-2 ml-2"
+              className="text-emerald-600 hover:text-emerald-400 cursor-pointer underline"
             >
               Login
             </button>
