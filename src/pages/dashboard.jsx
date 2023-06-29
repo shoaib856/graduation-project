@@ -3,12 +3,13 @@ import axios from "../api/axios";
 import useAuthValue from "../hooks/useAuthValue";
 import { Badge, Card, Dropdown, Placeholder } from "react-bootstrap";
 import { PersonCircle, ThreeDotsVertical } from "react-bootstrap-icons";
-import { toastMsg } from "../components/message-toast";
 import warningMessage from "../components/warningMessage";
 import { useUserImage } from "../context/userImg";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import DefaultUserLogo from "../components/DefaultUserLogo";
+
+import refreshIcon from "../assets/icons/refresh.svg";
 
 const colors = [
   "bg-red-400",
@@ -41,6 +42,8 @@ function Dashboard() {
   const [usersData, setUsersData] = useState([]);
   const [refetch, setRefetch] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [error, setError] = useState(false);
   const userImg = useUserImage();
   const getUsers = async () => {
     setLoading(true);
@@ -51,10 +54,19 @@ function Dashboard() {
         },
       })
       .then((res) => {
-        toastMsg("success", res.data.message);
         setLoading(false);
         setRefetch(false);
+        setError(false);
         setUsersData(res.data.data);
+      })
+      .catch((err) => {
+        setLoading(false);
+        setError(true);
+        setRefetch(false);
+        setMsg(
+          err.response.data.message ||
+            "Something went wrong, please try again later"
+        );
       });
   };
 
@@ -68,8 +80,17 @@ function Dashboard() {
       })
       .then((res) => {
         setRefetch(true);
+        setError(false);
         setLoading(false);
-        toastMsg("success", `${res.data.message} Reloading...`);
+        setMsg(res.data.message);
+      })
+      .catch((err) => {
+        setLoading(false);
+        setError(true);
+        setMsg(
+          err.response.data.message ||
+            "Something went wrong, please try again later"
+        );
       });
   };
   const handleUpdateAdmin = async (id, role) => {
@@ -112,11 +133,17 @@ function Dashboard() {
                 }
               )
               .then((res) => {
-                toastMsg("success", res.data.message);
+                setMsg(res.data.message);
+                setError(false);
                 setRefetch(true);
               })
               .catch((err) => {
-                toastMsg("error", err.response.data.message);
+                setError(true);
+                setRefetch(false);
+                setMsg(
+                  err.response.data.message ||
+                    "Something went wrong, please try again later"
+                );
               });
           }
         });
@@ -127,9 +154,27 @@ function Dashboard() {
     getUsers();
   }, [auth, refetch]);
 
+  useEffect(() => {
+    if (msg) {
+      setTimeout(() => {
+        setMsg("");
+      }, 3000);
+    }
+  }, [msg]);
+
   return (
     <div className="flex flex-col gap-2 text-emerald-600 w-full p-4 bg-white rounded-xl shadow-xl">
-      <h1 className="text-4xl w-full text-emerald-600 pl-3">Dashboard</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-semibold">Dashboard</h1>
+        <div className="flex items-center gap-3">
+          <Badge bg={error ? "danger" : "success"}>{msg}</Badge>
+          {error ? (
+            <button onClick={() => setRefetch(true)} className="form-btn">
+              <img src={refreshIcon} alt="Refresh" className="w-5 h-5" />
+            </button>
+          ) : null}
+        </div>
+      </div>
       <div
         className="grid gap-2 justify-center"
         style={{
@@ -220,26 +265,46 @@ function Dashboard() {
                       <Card.Text className="text-sm text-gray-500">
                         Role: {userData.user.role}
                       </Card.Text>
-                      <Card.Text className="text-sm text-gray-500">
-                        Joined at:{" "}
+                      <Card.Text className="text-xs text-gray-400 absolute bottom-0 right-1">
+                        Joined at:
                         {
                           new Date(userData.user.createdAt)
                             .toLocaleString("en-Us")
                             .split(",")[0]
                         }
                       </Card.Text>
-                      <Card.Text className="text-sm text-gray-500">
-                        Last Update:{" "}
+                      <Card.Text className="text-xs text-gray-400 absolute bottom-0 left-1">
+                        last update:
                         {
-                          new Date(userData.user.updatedAt)
-
-                            .toLocaleString("en-Us")
-                            .split(",")[0]
+                          // determine number of days since last update
+                          Math.floor(
+                            (new Date() - new Date(userData.user.updatedAt)) /
+                              (1000 * 60 * 60 * 24)
+                          ) === 0
+                            ? " today"
+                            : Math.floor(
+                                (new Date() -
+                                  new Date(userData.user.updatedAt)) /
+                                  (1000 * 60 * 60 * 24)
+                              ) === 1
+                            ? " yesterday"
+                            : Math.floor(
+                                (new Date() -
+                                  new Date(userData.user.updatedAt)) /
+                                  (1000 * 60 * 60 * 24)
+                              ) > 1
+                            ? ` ${Math.floor(
+                                (new Date() -
+                                  new Date(userData.user.updatedAt)) /
+                                  (1000 * 60 * 60 * 24)
+                              )} days ago`
+                            : null
                         }
                       </Card.Text>
+
                       <Link
                         to={`user-details/${userData.user.id}/`}
-                        className="rounded text-white bg-emerald-400 hover:bg-emerald-600 active:bg-emerald-600 py-2 text-center shadow-sm hover:shadow-lg transition-all duration-300"
+                        className="form-btn"
                       >
                         Details
                       </Link>

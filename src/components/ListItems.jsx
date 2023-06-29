@@ -5,14 +5,15 @@ import "animate.css";
 import { Link } from "react-router-dom";
 import warningMessage from "./warningMessage";
 import axios from "../api/axios";
-import { toastMsg } from "./message-toast";
+import CustomizedAlert from "./CustomizedAlert";
 
-const List = ({
+const ListItems = ({
   refetch,
   setRefetch,
   data,
   empty,
   error,
+  setError,
   loading,
   setLoading,
   type,
@@ -27,37 +28,48 @@ const List = ({
           "x-auth-token": auth.token,
         },
       })
-      .then((res) => {
-        toastMsg("success", res.data.message);
+      .then(() => {
         setRefetch(true);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setLoading(false);
-        toastMsg("error", "Something went wrong");
+        setRefetch(false);
+        setError(true);
       });
   };
   return (
     <>
       <hr className="my-2" />
       {refetch ? (
-        <Alert variant="info">Loading {type + "s"}...</Alert>
+        <CustomizedAlert
+          msg={`Loading ${type + "s"}...`}
+          variant="info"
+          spinner={true}
+        />
       ) : (
         <>
           <Alert variant="light" className="!pl-3 text-2xl text-emerald-600">
-            {type + "s"} list
+            {type.at(0).toUpperCase() + type.slice(1) + "s"} list
           </Alert>
           <ListGroup className="gap-2">
-            {/* 
-            // TODO: Add a spinner
-            // TODO: Add a error message
-            // TODO: Add a refetch button 
-            */}
-
-            {empty ? (
-              <Alert variant="warning">No {type + "s"} Added</Alert>
+            {error ? (
+              <CustomizedAlert
+                msg={`Something went wrong, please try again later`}
+                variant="danger"
+                setRefetch={setRefetch}
+              />
+            ) : empty ? (
+              <CustomizedAlert
+                msg={`No ${type + "s"} found`}
+                variant="warning"
+              />
             ) : data.length === 0 ? (
-              <Alert variant="info">Loading {type + "s"}...</Alert>
+              <CustomizedAlert
+                msg={`Loading ${type + "s"}...`}
+                variant="info"
+                spinner={true}
+              />
             ) : (
               data.map((item) => (
                 <ListGroup.Item
@@ -92,7 +104,7 @@ const List = ({
                     </button>
 
                     <Link
-                      to={`./${item}-details/${item.id}`}
+                      to={`./${type}-details/${item.id}`}
                       className="bg-emerald-400 hover:bg-emerald-600 text-white badge text-2xl p-1"
                     >
                       <ThreeDotsVertical />
@@ -108,4 +120,4 @@ const List = ({
   );
 };
 
-export default List;
+export default ListItems;

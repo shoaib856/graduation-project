@@ -4,6 +4,12 @@ import InputField from "./inputfield";
 const LocationInfo = ({ errors, touched, formikProps }) => {
   const fields = [
     {
+      Label: "Phone Number",
+      type: "text",
+      placeholder: "",
+      id: "phoneNumber",
+    },
+    {
       Label: "Country Location",
       type: "text",
       placeholder: "",

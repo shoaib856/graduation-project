@@ -39,12 +39,7 @@ const GeneralInfo = ({ errors, touched, formikProps }) => {
       placeholder: "",
       id: "confirmPassword",
     },
-    {
-      Label: "Phone Number",
-      type: "text",
-      placeholder: "",
-      id: "phoneNumber",
-    },
+    
   ];
   return (
     <>

@@ -44,7 +44,7 @@ const SpecificInfo = ({ features, errors, touched, formikProps }) => {
       ))}
       <fieldset className="border p-3 rounded">
         <legend>Features</legend>
-        <ListGroup className="h-24 overflow-y-scroll">
+        <ListGroup className="h-32 overflow-y-scroll">
           {features.length > 0 ? (
             features.map((feature) => {
               return (

@@ -68,9 +68,9 @@ function Register() {
         .oneOf([Yup.ref("password"), null], "Passwords must match"),
       phoneNumber: Yup.string()
         .required("Required")
-        .matches(/^[0-9]+$/, "Phone number must be number")
-        .min(12, "Phone number must be at least 12 characters")
-        .max(12, "Phone number must be at most 12 characters"),
+        .matches(/^[0-9]$/, "Phone number must be number")
+        .min(11, "at least 11 number")
+        .max(11, "at most 11 number"),
       country: Yup.string().required("Required"),
       city: Yup.string().required("Required"),
       state: Yup.string().required("Required"),
@@ -83,26 +83,29 @@ function Register() {
     onSubmit: async (values) => {
       setLoader(true);
       await axios
-        .post("/user", values, {
+        .post(registerLocation ? "" : "/admin" + "/user", values, {
           headers: {
             "Content-Type": "application/json",
+            "x-auth-token": auth?.token,
           },
         })
         .then((res) => {
           toastMsg("success", res.data.message);
-          setAuth({
-            role: res?.data.role,
-            token: res?.data.token,
-            id: res?.data.user_id,
-          });
-          setCookie(
-            "auth",
-            JSON.stringify({
+          if (registerLocation) {
+            setAuth({
               role: res?.data.role,
               token: res?.data.token,
               id: res?.data.user_id,
-            })
-          );
+            });
+            setCookie(
+              "auth",
+              JSON.stringify({
+                role: res?.data.role,
+                token: res?.data.token,
+                id: res?.data.user_id,
+              })
+            );
+          }
           navigate("../");
           setLoader(false);
         })
@@ -135,6 +138,18 @@ function Register() {
     "Location Information",
     "Specific Information",
   ];
+  const fieldsInStep = [
+    [
+      "userName",
+      "firstName",
+      "lastName",
+      "email",
+      "password",
+      "confirmPassword",
+    ],
+    ["phoneNumber", "country", "city", "state", "streetName", "postCode"],
+    ["workField", "usageTarget", "features"],
+  ];
   return (
     <div className="flex flex-col gap-2 text-emerald-600 max-w-3xl w-full p-4 bg-white rounded-xl shadow-xl">
       <Form onSubmit={formik.handleSubmit} autoComplete="off">
@@ -142,6 +157,9 @@ function Register() {
           steps={steps}
           activeStep={activeStep}
           setActiveStep={setActiveStep}
+          fieldsInEachStep={fieldsInStep}
+          errors={formik.errors}
+          touched={formik.touched}
         />
         <Container className="p-0 mx-auto">
           {activeStep === 1 ? (

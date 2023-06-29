@@ -9,6 +9,7 @@ import * as Yup from "yup";
 import { PencilSquare, Trash, XCircleFill } from "react-bootstrap-icons";
 import { Alert, Badge, Button, Form } from "react-bootstrap";
 import warningMessage from "../components/warningMessage";
+import CustomizedAlert from "../components/CustomizedAlert";
 
 const validationSchema = Yup.object({
   tag: Yup.string().required("Required").min(3, "Must be 3 characters or more"),
@@ -156,7 +157,7 @@ const TagDetails = () => {
             new Date(selectedTag?.createdAt) ===
           0 ? (
             <>
-              Created at:{" "}
+              Created at:
               {`${new Date(selectedTag?.createdAt).toDateString("en-Us", {
                 year: "numeric",
                 month: "short",
@@ -165,7 +166,7 @@ const TagDetails = () => {
             </>
           ) : (
             <>
-              last updated at:{" "}
+              last updated at:
               {`${new Date(selectedTag?.updatedAt).toDateString("en-Us", {
                 year: "numeric",
                 month: "short",
@@ -187,13 +188,11 @@ const TagDetails = () => {
         <Alert variant="danger" className="w-full flex items-center gap-2">
           Not Found Tag, Redirecting...
           {setTimeout(() => {
-            navigate(-1);
+            navigate("../");
           }, 1000)}
         </Alert>
       ) : !selectedTag ? (
-        <Alert variant="info" className="w-full">
-          Loading...
-        </Alert>
+        <CustomizedAlert variant="info" msg="Loading..." spinner={true} />
       ) : (
         <>
           <form

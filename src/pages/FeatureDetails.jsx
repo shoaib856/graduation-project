@@ -9,6 +9,7 @@ import * as Yup from "yup";
 import { PencilSquare, Trash, XCircleFill } from "react-bootstrap-icons";
 import { Alert, Badge, Button, Form } from "react-bootstrap";
 import warningMessage from "../components/warningMessage";
+import CustomizedAlert from "../components/CustomizedAlert";
 
 const validationSchema = Yup.object({
   feature: Yup.string()
@@ -19,7 +20,10 @@ const validationSchema = Yup.object({
     .min(10, "Must be 10 characters or more"),
   price: Yup.string()
     .required("Required")
-    .matches(/^[0-9.?]+$/, "Phone number must be number and contain only one ."),
+    .matches(
+      /^[0-9.?]+$/,
+      "Phone number must be number and contain only one ."
+    ),
 });
 const FeatureDetails = () => {
   const featureRef = useRef(null);
@@ -53,10 +57,8 @@ const FeatureDetails = () => {
           );
           updateFeatureFormik.setFieldValue("price", res.data.data.price);
           setRefetch(false);
-          // toastMsg("success", res.data.message);
         })
         .catch((err) => {
-          // toastMsg("error", "Something went wrong");
           setError(true);
         });
     } catch (err) {
@@ -166,7 +168,7 @@ const FeatureDetails = () => {
             new Date(selectedFeature?.createdAt) ===
           0 ? (
             <>
-              Created at:{" "}
+              Created at:
               {`${new Date(selectedFeature?.createdAt).toDateString("en-Us", {
                 year: "numeric",
                 month: "short",
@@ -175,7 +177,7 @@ const FeatureDetails = () => {
             </>
           ) : (
             <>
-              last updated at:{" "}
+              last updated at:
               {`${new Date(selectedFeature?.updatedAt).toDateString("en-Us", {
                 year: "numeric",
                 month: "short",
@@ -196,15 +198,12 @@ const FeatureDetails = () => {
       {error ? (
         <Alert variant="danger" className="w-full flex items-center gap-2">
           Not Found Feature, Redirecting...
-          {/* <Navigate to={-1} /> */}
           {setTimeout(() => {
             navigate("../");
           }, 1000)}
         </Alert>
       ) : !selectedFeature ? (
-        <Alert variant="info" className="w-full">
-          Loading...
-        </Alert>
+        <CustomizedAlert variant="info" msg="Loading..." spinner={true} />
       ) : (
         <>
           <form

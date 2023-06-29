@@ -1,14 +1,11 @@
-import { Transition } from "@headlessui/react";
-import { useState } from "react";
-import { Collapse, Navbar } from "react-bootstrap";
-import { ArrowDownCircleFill, ArrowReturnRight } from "react-bootstrap-icons";
+import {  Navbar } from "react-bootstrap";
+import {  ArrowReturnRight } from "react-bootstrap-icons";
 import { Link, NavLink, useLocation, useParams } from "react-router-dom";
 
 const DashboardNavbar = () => {
   const location = useLocation();
   const userDetailsPath = location.pathname.includes("user-details");
   const params = useParams();
-  const [userDetailsMenuShow, setUserDetailsMenuShow] = useState(true);
 
   return (
     <Navbar

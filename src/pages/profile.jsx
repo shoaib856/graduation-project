@@ -23,6 +23,48 @@ import { useImmer } from "use-immer";
 import * as Yup from "yup";
 import DefaultUserLogo from "../components/DefaultUserLogo";
 
+const validationSchema = Yup.object({
+  userName: Yup.string()
+    .required("Required")
+    .min(8, "Must be 8 characters or more")
+    .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Username must be small case"),
+  firstName: Yup.string()
+    .required("Required")
+    .max(15, "Must be 15 characters or less"),
+  lastName: Yup.string()
+    .required("Required")
+    .max(20, "Must be 20 characters or less"),
+  email: Yup.string().email("Invalid email address").required("Required"),
+  phoneNumber: Yup.string()
+    .required("Required")
+    .matches(/^[0-9]+$/, "Phone number must be number")
+    .min(11, "Phone number must be at least 11 characters")
+    .max(11, "Phone number must be at most 11 characters"),
+  country: Yup.string().required("Required"),
+  city: Yup.string().required("Required"),
+  state: Yup.string().required("Required"),
+  streetName: Yup.string().required("Required"),
+  postCode: Yup.string().required("Required"),
+  workField: Yup.string().required("Required"),
+  usageTarget: Yup.string().required("Required"),
+});
+const initialValues = {
+  firstName: "",
+  lastName: "",
+  userName: "",
+  email: "",
+  phoneNumber: "",
+  country: "",
+  city: "",
+  state: "",
+  streetName: "",
+  postCode: "",
+  role: "",
+  workField: "",
+  usageTarget: "",
+  features: [],
+};
+
 function Profile() {
   const [auth, setAuth] = useAuth();
   const [loading, setLoading] = useState(false);
@@ -67,25 +109,10 @@ function Profile() {
   const roleRef = useRef(null);
   const workFieldRef = useRef(null);
   const usageTargetRef = useRef(null);
-  const featuresRef = useRef(null);
 
   const formik = useFormik({
-    initialValues: {
-      firstName: "",
-      lastName: "",
-      userName: "",
-      email: "",
-      phoneNumber: "",
-      country: "",
-      city: "",
-      state: "",
-      streetName: "",
-      postCode: "",
-      role: "",
-      workField: "",
-      usageTarget: "",
-      features: [],
-    },
+    initialValues,
+    validationSchema,
     onSubmit: async (values) => {
       const editedFields = Object.keys(values).reduce((acc, current) => {
         if (values[current] !== user[current]) {
@@ -113,33 +140,10 @@ function Profile() {
           toastMsg("error", err.response.data.message);
         });
     },
-    validationSchema: Yup.object({
-      firstName: Yup.string()
-        .min(2, "Must be 2 characters or more")
-        .max(15, "Must be 15 characters or less")
-        .required("Required"),
-      lastName: Yup.string()
-        .min(2, "Must be 2 characters or more")
-        .max(15, "Must be 15 characters or less")
-        .required("Required"),
-      userName: Yup.string()
-        .required("Required")
-        .min(8, "Must be 8 characters or more")
-        .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Username must be small case"),
-      email: Yup.string().email("Invalid email address").required("Required"),
-      phoneNumber: Yup.string()
-        .matches(/^\+?[0-9]+$/, "Must be only digits")
-        .required("Required"),
-      country: Yup.string().required("Required"),
-      city: Yup.string().required("Required"),
-      state: Yup.string().required("Required"),
-      streetName: Yup.string().required("Required"),
-      postCode: Yup.string().required("Required"),
-      role: Yup.string().required("Required"),
-      workField: Yup.string().required("Required"),
-      usageTarget: Yup.string().required("Required"),
-    }),
   });
+  useEffect(() => {
+    console.log(formik.errors);
+  }, [formik.errors]);
   const getData = async () => {
     try {
       setLoading(true);
@@ -154,8 +158,9 @@ function Profile() {
           setLoading(false);
           setRefetch(false);
         })
-        .catch((err) => {
+        .catch(() => {
           setError(true);
+          setRefetch(false);
           setLoading(false);
         });
     } catch (err) {
