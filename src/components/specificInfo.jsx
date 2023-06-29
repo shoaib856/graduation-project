@@ -1,6 +1,7 @@
 import { Alert, Badge, Form, ListGroup } from "react-bootstrap";
 import InputField from "./inputField";
 import ShowOnHover from "./showOnHover";
+import MarkMultiItems from "./MarkMultiItems";
 
 const SpecificInfo = ({ features, errors, touched, formikProps }) => {
   const fields = [
@@ -48,30 +49,14 @@ const SpecificInfo = ({ features, errors, touched, formikProps }) => {
           {features.length > 0 ? (
             features.map((feature) => {
               return (
-                <ListGroup.Item key={feature.id}>
-                  <ShowOnHover description={feature.describtion}>
-                    <Form.Check
-                      className="flex gap-2"
-                      type="checkbox"
-                      id={feature.feature}
-                    >
-                      <Form.Check.Input
-                        className="cursor-pointer w-5 h-5 my-auto checked:bg-emerald-600 checked:border-emerald-300 shadow-none border-gray-300 focus:border-emerald-300"
-                        type="checkbox"
-                        id={feature.feature}
-                        name="features"
-                        {...formikProps("features")}
-                      />
-                      <Form.Check.Label className="grow cursor-pointer">
-                        {feature.feature}
-                      </Form.Check.Label>
-
-                      <Badge bg="secondary" className="p-1">
-                        {feature.price}$
-                      </Badge>
-                    </Form.Check>
-                  </ShowOnHover>
-                </ListGroup.Item>
+                <MarkMultiItems
+                  key={feature.id}
+                  formikProps={formikProps.getFieldProps}
+                  itemDescription={feature.describtion}
+                  itemName={feature.feature}
+                  itemType={"features"}
+                  itemPrice={feature.price}
+                />
               );
             })
           ) : (

@@ -1,12 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import logo from "/logo.png";
-import {
-  Container,
-  Image,
-  Nav,
-  Navbar,
-  Offcanvas,
-} from "react-bootstrap";
+import { Container, Image, Nav, Navbar, Offcanvas } from "react-bootstrap";
 import { toastMsg } from "./message-toast";
 import axios from "../api/axios";
 import useAuth from "../hooks/useAuth";
@@ -19,6 +13,7 @@ import {
   BoxArrowInRight,
   BoxArrowLeft,
   CaretDownFill,
+  ChatDotsFill,
   HouseFill,
   PersonCircle,
   PersonFill,
@@ -126,7 +121,7 @@ function NavBar() {
           </Offcanvas.Header>
           <Offcanvas.Body className="px-1">
             <Nav className="items-center font-bold py-3 list-group list-group-horizontal-md">
-              {["Home", "About", "Contact"].map((tab, i)=>{
+              {["Home", "About", "Contact"].map((tab, i) => {
                 const links = ["/", "/about", "/contact"];
                 return (
                   <NavLink
@@ -197,6 +192,14 @@ function NavBar() {
                 >
                   <AppIndicator />
                   Detection App
+                </Link>
+                <Link
+                  to={"community/"}
+                  onClick={() => setShowList(false)}
+                  className="flex items-center gap-2 px-4 py-2 text-slate-800 hover:bg-gray-200"
+                >
+                  <ChatDotsFill />
+                  Community
                 </Link>
                 {(auth?.role === "admin" || auth?.role === "superAdmin") && (
                   <Link

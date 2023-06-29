@@ -183,7 +183,7 @@ function Dashboard() {
       >
         {loading ? (
           <>
-            {[1, 2, 3].map((n) => {
+            {[1, 2, 3, 4, 5, 6].map((n) => {
               return (
                 <Card key={n}>
                   <Card.Body className="flex items-center gap-2 bg-slate-50">
