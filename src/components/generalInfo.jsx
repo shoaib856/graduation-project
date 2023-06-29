@@ -1,5 +1,4 @@
-import { Alert, Col, Form, Row } from "react-bootstrap";
-import InputField from "./inputfield";
+import InputField from "./inputField";
 
 const GeneralInfo = ({ errors, touched, formikProps }) => {
   const fields = [
@@ -39,7 +38,6 @@ const GeneralInfo = ({ errors, touched, formikProps }) => {
       placeholder: "",
       id: "confirmPassword",
     },
-    
   ];
   return (
     <>

@@ -1,5 +1,5 @@
-import { Alert, Badge, Col, Form, ListGroup, Row } from "react-bootstrap";
-import InputField from "./inputfield";
+import { Alert, Badge, Form, ListGroup } from "react-bootstrap";
+import InputField from "./inputField";
 import ShowOnHover from "./showOnHover";
 
 const SpecificInfo = ({ features, errors, touched, formikProps }) => {

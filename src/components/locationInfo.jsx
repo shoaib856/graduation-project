@@ -1,5 +1,4 @@
-import { Alert, Col, Form, Row } from "react-bootstrap";
-import InputField from "./inputfield";
+import InputField from "./inputField";
 
 const LocationInfo = ({ errors, touched, formikProps }) => {
   const fields = [
