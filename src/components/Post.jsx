@@ -31,9 +31,6 @@ const Post = ({
   const [loading, setLoading] = useState(false);
   const auth = useAuthValue();
 
-  useEffect(() => {
-    console.log(showComments);
-  }, [showComments]);
   const handleLike = async () => {
     setLoading(true);
     await axios

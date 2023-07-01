@@ -1,7 +1,7 @@
 import { useFormik } from "formik";
 import React, { useEffect } from "react";
 import { Button, Modal } from "react-bootstrap";
-import { XCircleFill } from "react-bootstrap-icons";
+import { Send, XCircleFill } from "react-bootstrap-icons";
 import Post from "./Post";
 import InputField from "./inputField";
 
@@ -17,9 +17,7 @@ const Comment = ({ show, setShow, post }) => {
       console.log(values, "/comment/onpost/:id - post");
     },
   });
-  useEffect(() => {
-    console.log(show);
-  }, [show]);
+
   return (
     <Modal show={show} onHide={handleCancel}>
       <Modal.Header>
@@ -36,22 +34,34 @@ const Comment = ({ show, setShow, post }) => {
           disableComment={true}
         />
       </Modal.Body>
-      <Modal.Footer>
-        <InputField
-          Label={null}
-          errors={formik.errors}
-          formikProps={formik.getFieldProps}
-          placeholder={"Write Your Comment"}
-          touched={formik.touched}
-          id={"content"}
-          type={"text"}
-        />
-        <Button variant="secondary" onClick={handleCancel}>
-          Close
-        </Button>
-        <Button variant="primary" onClick={formik.handleSubmit}>
-          Save Changes
-        </Button>
+      <Modal.Footer className="flex !flex-nowrap sm:!flex-wrap">
+        <div className="w-full">
+          <InputField
+            Label={null}
+            errors={formik.errors}
+            formikProps={formik.getFieldProps}
+            placeholder={"Write Your Comment"}
+            touched={formik.touched}
+            id={"content"}
+            type={"text"}
+          />
+        </div>
+        <div className="flex items-center justify-between gap-2 sm:w-full">
+          <button
+            type="button"
+            className="text-red-300 hover:text-red-500 "
+            onClick={handleCancel}
+          >
+            Close
+          </button>
+          <button
+            type="button"
+            className="form-btn"
+            onClick={formik.handleSubmit}
+          >
+            <Send className="text-lg" />
+          </button>
+        </div>
       </Modal.Footer>
     </Modal>
   );
