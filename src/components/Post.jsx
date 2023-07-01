@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   HandThumbsUp,
   HandThumbsUpFill,
@@ -8,6 +8,7 @@ import {
 } from "react-bootstrap-icons";
 import useAuthValue from "../hooks/useAuthValue";
 import axios from "../api/axios";
+import Comment from "./Comment";
 
 const Post = ({
   post,
@@ -16,8 +17,9 @@ const Post = ({
   user,
   userLike,
   userDisLike,
-  setSearch,
-  setSelectedUser,
+  setSearch = null,
+  setSelectedUser = null,
+  disableComment = false,
 }) => {
   const [liked, setLiked] = useState(userLike);
   const [numLikes, setNumLikes] = useState(post.numberOfLikes);
@@ -29,6 +31,9 @@ const Post = ({
   const [loading, setLoading] = useState(false);
   const auth = useAuthValue();
 
+  useEffect(() => {
+    console.log(showComments);
+  }, [showComments]);
   const handleLike = async () => {
     setLoading(true);
     await axios
@@ -78,21 +83,26 @@ const Post = ({
             {[user.firstName, user.lastName].join(" ")}
           </h3>
           <button
-            onClick={() => setSelectedUser(user.userName)}
-            className="text-xs text-gray-400 hover:text-blue-400"
+            onClick={() => {
+              setSelectedUser(user.userName);
+              setSearch("");
+            }}
+            className="text-xs text-blue-400 hover:text-blue-600 underline transition-all disabled:text-gray-400 disabled:no-underline"
+            disabled={setSelectedUser === null}
           >
             @{user.userName}
           </button>
         </div>
         <div className="flex gap-2">
           {tags.map((tag) => (
-            <span
+            <button
               onClick={() => setSearch(tag)}
               key={tag}
-              className="cursor-pointer bg-emerald-400 hover:bg-emerald-500 text-white text-xs px-2 py-1 rounded-md"
+              className="form-btn !text-xs px-1 py-0.5 disabled:bg-emerald-100 "
+              disabled={setSearch === null}
             >
               {tag}
-            </span>
+            </button>
           ))}
         </div>
       </div>
@@ -125,10 +135,23 @@ const Post = ({
           {numDislikes}
           {disliked ? <HandThumbsDownFill /> : <HandThumbsDown />}
         </button>
-        <button className="form-btn flex items-center gap-1">
+
+        <button
+          onClick={() => setShowComments(true)}
+          className="form-btn flex items-center gap-1"
+          disabled={disableComment}
+        >
           {post.numberOfComments}
           <ChatFill />
         </button>
+
+        {showComments && (
+          <Comment
+            post={{ post, tags, images, user, userLike, userDisLike }}
+            setShow={setShowComments}
+            show={showComments}
+          />
+        )}
       </div>
     </div>
   );

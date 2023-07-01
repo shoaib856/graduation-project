@@ -22,6 +22,7 @@ import { useFormik } from "formik";
 import { useImmer } from "use-immer";
 import * as Yup from "yup";
 import DefaultUserLogo from "../components/DefaultUserLogo";
+import CustomizedAlert from "../components/CustomizedAlert";
 
 const validationSchema = Yup.object({
   userName: Yup.string()
@@ -132,7 +133,7 @@ function Profile() {
           },
         })
         .then((res) => {
-          toastMsg("success", res.data.message);
+          // toastMsg("success", res.data.message);
           setRefetch(true);
           handleDisableAll();
         })
@@ -141,9 +142,7 @@ function Profile() {
         });
     },
   });
-  useEffect(() => {
-    console.log(formik.errors);
-  }, [formik.errors]);
+
   const getData = async () => {
     try {
       setLoading(true);
@@ -237,9 +236,11 @@ function Profile() {
     <div className="w-full py-3 px-1 flex flex-col gap-4 items-center bg-white !rounded-xl shadow-xl">
       <h1 className="text-4xl w-full text-emerald-600 pl-3">Profile</h1>
       {error ? (
-        <Alert variant="danger" className="w-full">
-          Something went wrong
-        </Alert>
+        <CustomizedAlert
+          variant="danger"
+          msg={"Something went wrong"}
+          setRefetch={setRefetch}
+        />
       ) : !user || refetch ? (
         <Card className="w-full">
           <Card.Header className="flex justify-center w-full">

@@ -22,6 +22,7 @@ const Community = () => {
   const [error, setError] = useState(false);
   const [refetch, setRefetch] = useState(false);
   const [show, setShow] = useState(false);
+
   const [search, setSearch] = useState("");
   const getData = async () => {
     setLoading(true);
@@ -105,7 +106,13 @@ const Community = () => {
             className="flex items-center justify-between"
           >
             <p>Selected User: {selectedUser}</p>
-            <button className="form-btn" onClick={() => setSelectedUser(null)}>
+            <button
+              className="form-btn"
+              onClick={() => {
+                setSearch("");
+                setSelectedUser(null);
+              }}
+            >
               Clear
             </button>
           </Alert>
@@ -143,7 +150,6 @@ const Community = () => {
               userLike={post.userLike}
               userDisLike={post.userDisLike}
               setSearch={setSearch}
-              setSelectedUser={setSelectedUser}
             />
           ))
         ) : (
@@ -157,7 +163,6 @@ const Community = () => {
               userLike={post.userLike}
               userDisLike={post.userDisLike}
               setSearch={setSearch}
-              setSelectedUser={setSelectedUser}
             />
           ))
         )

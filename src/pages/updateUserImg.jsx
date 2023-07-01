@@ -29,11 +29,16 @@ const UpdateUserImg = () => {
       }
     },
   });
-  console.log(formik.values);
+
   return (
     <div className="w-full py-3 px-1 flex flex-col gap-5 items-center bg-white !rounded-xl shadow-xl">
-      <h1 className="text-4xl w-full rounded-md text-emerald-600 pl-2">Change Logo</h1>
-      <form onSubmit={formik.handleSubmit} className="flex flex-col gap-2 w-full">
+      <h1 className="text-4xl w-full rounded-md text-emerald-600 pl-2">
+        Change Logo
+      </h1>
+      <form
+        onSubmit={formik.handleSubmit}
+        className="flex flex-col gap-2 w-full"
+      >
         <Container className="cover-img flex justify-center py-3" fluid>
           {image ? (
             <Image
