@@ -6,18 +6,28 @@ import axios from "../api/axios";
 import MarkMultiItems from "./MarkMultiItems";
 import { toastMsg } from "./message-toast";
 import useAuthValue from "../hooks/useAuthValue";
+import CustomizedAlert from "./CustomizedAlert";
+import AddItem from "./AddItem";
 
 const AddPost = ({ show, setShow, setRefetch }) => {
   const auth = useAuthValue();
   const [tags, setTags] = useState([]);
+  const [error, setError] = useState(false);
+  const [abortController, setAbortController] = useState(null);
+
+  const [loading, setLoading] = useState(false);
+
   const formik = useFormik({
     initialValues: {
       content: "",
       tags: [],
     },
     onSubmit: async (values) => {
+      const controller = new AbortController();
+      setAbortController(controller);
       await axios
         .post("/post", values, {
+          signal: controller.signal,
           headers: {
             "x-auth-token": auth.token,
           },
@@ -29,23 +39,41 @@ const AddPost = ({ show, setShow, setRefetch }) => {
           formik.resetForm();
         })
         .catch((err) => {
+          if (
+            err.name === "AbortError" ||
+            abortController?.signal.aborted ||
+            err.name === "CanceledError"
+          ) {
+            console.log("aborted");
+          } else {
+            console.log(err);
+          }
           toastMsg("error", err.response.data.message);
         });
     },
   });
+  const handleCancel = () => {
+    abortController?.abort();
+    setShow(false);
+    formik.resetForm();
+  };
   const getTags = async () => {
+    setLoading(true);
     await axios
       .get("/tag", { headers: { "x-auth-token": auth.token } })
       .then((res) => {
         setTags(res.data.data);
+        setLoading(false);
       })
       .catch((err) => {
-        toastMsg("error", err.response.data.message);
+        setLoading(false);
+        setError(true);
+        // toastMsg("error", err.response.data.message);
       });
   };
   useEffect(() => {
     getTags();
-  }, []);
+  }, [show]);
 
   return (
     <Modal
@@ -56,12 +84,7 @@ const AddPost = ({ show, setShow, setRefetch }) => {
     >
       <Modal.Header className="flex justify-between items-center">
         <Modal.Title>Add Post</Modal.Title>
-        <XCircleFill
-          onClick={() => {
-            setShow(false);
-          }}
-          className="close-btn"
-        />
+        <XCircleFill onClick={handleCancel} className="close-btn" />
       </Modal.Header>
       <Modal.Body>
         <form>
@@ -70,16 +93,29 @@ const AddPost = ({ show, setShow, setRefetch }) => {
               className="form-control form-field"
               id="content"
               {...formik.getFieldProps("content")}
-              rows={5}
+              rows={3}
               minLength={10}
               maxLength={1000}
               placeholder="Enter Post Content"
-            />
+            ></textarea>
           </div>
+
           <fieldset className="mt-1 border p-2 rounded">
             <legend>Tags</legend>
             <ListGroup className="h-32 overflow-y-scroll">
-              {tags.length > 0 ? (
+              {error ? (
+                <CustomizedAlert
+                  variant={"danger"}
+                  msg={"Error While Loading Tags"}
+                  setRefetch={setRefetch}
+                />
+              ) : loading ? (
+                <CustomizedAlert
+                  variant="info"
+                  msg={"Loading..."}
+                  spinner={true}
+                />
+              ) : tags.length > 0 ? (
                 tags.map((tag) => (
                   <MarkMultiItems
                     key={tag.id}
@@ -101,7 +137,7 @@ const AddPost = ({ show, setShow, setRefetch }) => {
           </fieldset>
         </form>
       </Modal.Body>
-      <Modal.Footer>
+      <Modal.Footer className="flex justify-between items-center">
         <button
           disabled={formik.isSubmitting}
           onClick={() => formik.submitForm()}
@@ -109,6 +145,19 @@ const AddPost = ({ show, setShow, setRefetch }) => {
         >
           {formik.isSubmitting ? "Loading..." : "Add Post"}
         </button>
+        <button
+          onClick={handleCancel}
+          className="text-red-300 hover:text-red-500"
+        >
+          Cancel
+        </button>
+
+        <span>
+          Can't find your tag?{" "}
+          <a href="/tags" className="text-blue-500 hover:text-blue-700">
+            Request One
+          </a>
+        </span>
       </Modal.Footer>
     </Modal>
   );

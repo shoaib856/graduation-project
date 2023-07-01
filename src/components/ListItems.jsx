@@ -6,20 +6,20 @@ import { Link } from "react-router-dom";
 import warningMessage from "./warningMessage";
 import axios from "../api/axios";
 import CustomizedAlert from "./CustomizedAlert";
+import { useState } from "react";
 
 const ListItems = ({
   refetch,
   setRefetch,
   data,
   empty,
-  error,
-  setError,
   loading,
   setLoading,
   type,
   showPrice = false,
   auth,
 }) => {
+  const [error, setError] = useState(false);
   const deleteFeature = async (id) => {
     setLoading(true);
     await axios

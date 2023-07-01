@@ -18,8 +18,6 @@
     "formik": "^2.2.9",
     "immer": "^10.0.1",
     "js-cookie": "^3.0.1",
-    "localforage": "^1.10.0",
-    "match-sorter": "^6.3.1",
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.2",
     "react-bootstrap-icons": "^1.10.2",
@@ -27,14 +25,11 @@
     "react-loader-spinner": "^5.3.4",
     "react-router-dom": "^6.9.0",
     "recoil": "^0.7.7",
-    "scss": "^0.2.4",
-    "sort-by": "^1.2.0",
     "sweetalert2": "^11.7.3",
     "use-immer": "^0.9.0",
     "yup": "^1.1.0"
   },
   "devDependencies": {
-    "@types/aos": "^3.0.4",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
     "@vitejs/plugin-react": "^3.1.0",

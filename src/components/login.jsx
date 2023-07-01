@@ -2,54 +2,79 @@ import axios from "../api/axios";
 import { Button, ButtonGroup, Form, Modal } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { toastMsg } from "./message-toast";
+import InputField from "./inputField";
 
 import { useState } from "react";
 import useAuth from "../hooks/useAuth.js";
-import useLoader from "../hooks/useLoader";
 import setCookie from "../hooks/setCookie";
-import { XCircleFill } from "react-bootstrap-icons";
+import { BoxArrowInRight, XCircleFill } from "react-bootstrap-icons";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 function Login({ show, onHide }) {
   const [auth, setAuth] = useAuth();
-  const [loader, setLoader] = useLoader();
-  const [email, setEmail] = useState("");
-  const [password, setPwd] = useState("");
+
+  const [abortController, setAbortController] = useState(null);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoader(true);
-    await axios
-      .post(
-        "/login",
-        { email, password },
-        { headers: { "Content-Type": "application/json" } }
-      )
-      .then((res) => {
-        toastMsg("success", res?.data.message);
-        setAuth({
-          role: res?.data.role,
-          token: res?.data.token,
-          id: res?.data.user_id,
-        });
-        setCookie(
-          "userIn",
-          JSON.stringify({
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validationSchema: Yup.object({
+      email: Yup.string()
+        .email("Invalid email address")
+        .required("Email is required"),
+      password: Yup.string()
+        .min(8, "Password must be 8 characters or more")
+        .required("Password is required"),
+    }),
+    onSubmit: async (values) => {
+      const controller = new AbortController();
+      setAbortController(controller);
+
+      await axios
+        .post("/login", values, {
+          signal: controller.signal,
+          headers: { "Content-Type": "application/json" },
+        })
+        .then((res) => {
+          toastMsg("success", res?.data.message);
+          setAuth({
             role: res?.data.role,
             token: res?.data.token,
             id: res?.data.user_id,
-          })
-        );
-        navigate("/");
-        setLoader(false);
-      })
-      .catch((err) => {
-        setLoader(false);
-        password.length < 8
-          ? toastMsg("error", "Password Can't be less than 8 characters")
-          : toastMsg("error", err.response.data.message.toString());
-      });
+          });
+          setCookie(
+            "userIn",
+            JSON.stringify({
+              role: res?.data.role,
+              token: res?.data.token,
+              id: res?.data.user_id,
+            })
+          );
+          navigate("/");
+        })
+        .catch((err) => {
+          if (
+            err.name === "AbortError" ||
+            abortController?.signal.aborted ||
+            err.name === "CanceledError"
+          ) {
+            console.log("Request canceled");
+          } else {
+            toastMsg("error", err.response.data.message.toString());
+          }
+        });
+    },
+  });
+
+  const handleCancel = () => {
+    abortController?.abort();
+    onHide();
   };
+
   return (
     <Modal
       show={show}
@@ -59,42 +84,47 @@ function Login({ show, onHide }) {
     >
       <Modal.Header>
         <Modal.Title className="font-bold text-emerald-900">Login</Modal.Title>
-        <XCircleFill onClick={onHide} className="close-btn" />
+        <XCircleFill onClick={handleCancel} className="close-btn" />
       </Modal.Header>
       <Modal.Body>
-        <Form className="text-xl text-emerald-900 " onSubmit={handleSubmit}>
-          <Form.Group className="mb-3">
-            <Form.Label htmlFor="email">E-mail *</Form.Label>
-            <Form.Control
-              type="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="focus:!border-emerald-500 focus:!shadow-md focus:!shadow-emerald-500"
-            />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label htmlFor="password">Password *</Form.Label>
-            <Form.Control
-              type="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPwd(e.target.value)}
-              className="focus:!border-emerald-500 focus:!shadow-md focus:!shadow-emerald-500"
-            />
-          </Form.Group>
-          <ButtonGroup className="w-full">
-            <Button variant="success" type="submit" className="bg-green-700">
-              <i className="bi bi-box-arrow-in-right mr-3"></i>
-              Login
-            </Button>
-            <Button variant="danger" className="bg-red-600" onClick={onHide}>
-              Cancel
-            </Button>
-          </ButtonGroup>
-        </Form>
+        <InputField
+          Label="Email"
+          errors={formik.errors}
+          formikProps={formik.getFieldProps}
+          id={"email"}
+          placeholder={"example@email.com"}
+          touched={formik.touched}
+          type="email"
+        />
+        <InputField
+          Label="Password"
+          errors={formik.errors}
+          formikProps={formik.getFieldProps}
+          id={"password"}
+          placeholder={"********"}
+          touched={formik.touched}
+          type="password"
+        />
       </Modal.Body>
       <Modal.Footer>
+        <div className="flex items-center gap-4">
+          <button
+            variant="success"
+            onClick={formik.handleSubmit}
+            type="button"
+            className="form-btn flex items-center gap-2"
+            disabled={formik.isSubmitting}
+          >
+            <BoxArrowInRight />
+            {formik.isSubmitting ? "Loading..." : "Login"}
+          </button>
+          <button
+            className="text-red-400 hover:text-red-600"
+            onClick={handleCancel}
+          >
+            Cancel
+          </button>
+        </div>
         <span className="mx-auto">
           Haven't you an account?{"  "}
           <Link

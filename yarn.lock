@@ -183,7 +183,7 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.19.0"
 
-"@babel/runtime@^7.12.5", "@babel/runtime@^7.21.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.3", "@babel/runtime@^7.8.7":
+"@babel/runtime@^7.21.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.3", "@babel/runtime@^7.8.7":
   version "7.21.0"
   resolved "https://registry.npmjs.org/@babel/runtime/-/runtime-7.21.0.tgz"
   integrity sha512-xwII0//EObnq89Ji5AKYQaRYiW/nZ3llSv29d49IuxPhKbtJoLP+9QUUZ4nVragQVtaVGeZrpB+ZtG/Pdy/POw==
@@ -464,11 +464,6 @@
   integrity sha512-4C7nX/dvpzB7za4Ql9K81xK3HPxCpHMgwTZVyf+9JQ6VUbn9jjZVN7/Nkdz/Ugzs2CSjqnL/UPXroiVBVHUWUw==
   dependencies:
     tslib "^2.4.0"
-
-"@types/aos@^3.0.4":
-  version "3.0.4"
-  resolved "https://registry.npmjs.org/@types/aos/-/aos-3.0.4.tgz"
-  integrity sha512-mna6Jd6bdK1NpwarLopGvXOgUoCfj0470IwLxuVOFDElTGI0JTd7xSGQ0AjbAEnHErC/b3fA9t2uB3IXVKmckA==
 
 "@types/prop-types@*":
   version "15.7.5"
@@ -953,11 +948,6 @@ hoist-non-react-statics@^3.0.0, hoist-non-react-statics@^3.3.0:
   dependencies:
     react-is "^16.7.0"
 
-immediate@~3.0.5:
-  version "3.0.6"
-  resolved "https://registry.npmjs.org/immediate/-/immediate-3.0.6.tgz"
-  integrity sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==
-
 immer@^10.0.1:
   version "10.0.1"
   resolved "https://registry.npmjs.org/immer/-/immer-10.0.1.tgz"
@@ -1044,13 +1034,6 @@ json5@^2.2.2:
   resolved "https://registry.npmjs.org/json5/-/json5-2.2.3.tgz"
   integrity sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==
 
-lie@3.1.1:
-  version "3.1.1"
-  resolved "https://registry.npmjs.org/lie/-/lie-3.1.1.tgz"
-  integrity sha512-RiNhHysUjhrDQntfYSfY4MU24coXXdEOgw9WGcKHNeEwffDYbF//u87M1EWaMGzuFoSbqW0C9C6lEEhDOAswfw==
-  dependencies:
-    immediate "~3.0.5"
-
 lilconfig@^2.0.5, lilconfig@^2.0.6:
   version "2.1.0"
   resolved "https://registry.npmjs.org/lilconfig/-/lilconfig-2.1.0.tgz"
@@ -1060,13 +1043,6 @@ lines-and-columns@^1.1.6:
   version "1.2.4"
   resolved "https://registry.npmjs.org/lines-and-columns/-/lines-and-columns-1.2.4.tgz"
   integrity sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==
-
-localforage@^1.10.0:
-  version "1.10.0"
-  resolved "https://registry.npmjs.org/localforage/-/localforage-1.10.0.tgz"
-  integrity sha512-14/H1aX7hzBBmmh7sGPd+AOMkkIrHM3Z1PAyGgZigA1H1p5O5ANnMyWzvpAETtG68/dC4pC0ncy3+PPGzXZHPg==
-  dependencies:
-    lie "3.1.1"
 
 lodash-es@^4.17.21:
   version "4.17.21"
@@ -1098,14 +1074,6 @@ magic-string@^0.27.0:
   integrity sha512-8UnnX2PeRAPZuN12svgR9j7M1uWMovg/CEnIwIG0LFkXSJJe4PdfUGiTGl8V9bsBHFUtfVINcSyYxd7q+kx9fA==
   dependencies:
     "@jridgewell/sourcemap-codec" "^1.4.13"
-
-match-sorter@^6.3.1:
-  version "6.3.1"
-  resolved "https://registry.npmjs.org/match-sorter/-/match-sorter-6.3.1.tgz"
-  integrity sha512-mxybbo3pPNuA+ZuCUhm5bwNkXrJTbsk5VWbR5wiwz/GC6LIiegBGn2w3O08UG/jdbYLinw51fSQ5xNU1U3MgBw==
-  dependencies:
-    "@babel/runtime" "^7.12.5"
-    remove-accents "0.4.2"
 
 merge2@^1.3.0:
   version "1.4.1"
@@ -1182,16 +1150,6 @@ object-hash@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/object-hash/-/object-hash-3.0.0.tgz"
   integrity sha512-RSn9F68PjH9HqtltsSnqYC1XXoWe9Bju5+213R98cNGttag9q9yAOTzdbsqvIa7aNm5WffBZFpWYr2aWrklWAw==
-
-object-path@0.6.0:
-  version "0.6.0"
-  resolved "https://registry.npmjs.org/object-path/-/object-path-0.6.0.tgz"
-  integrity sha512-fxrwsCFi3/p+LeLOAwo/wyRMODZxdGBtUlWRzsEpsUVrisZbEfZ21arxLGfaWfcnqb8oHPNihIb4XPE8CQPN5A==
-
-ometa@0.2.2:
-  version "0.2.2"
-  resolved "https://registry.npmjs.org/ometa/-/ometa-0.2.2.tgz"
-  integrity sha512-LZuoK/yjU3FvrxPjUXUlZ1bavCfBPqauA7fsNdwi+AVhRdyk2IzgP3JRnevvjzQ6fKHdUw8YISshf53FmpHrng==
 
 once@^1.3.0:
   version "1.4.0"
@@ -1347,7 +1305,7 @@ react-bootstrap@^2.7.2:
 
 react-dom@^18.2.0:
   version "18.2.0"
-  resolved "https://registry.npmjs.org/react-dom/-/react-dom-18.2.0.tgz"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-18.2.0.tgz#22aaf38708db2674ed9ada224ca4aa708d821e3d"
   integrity sha512-6IMTriUmvsjHUjNtEDudZfuDQUoWXVxKHhlEGSk81n4YFS+r/Kl99wXiwlVXtPBtJenozv2P+hxDsw9eA7Xo6g==
   dependencies:
     loose-envify "^1.1.0"
@@ -1414,7 +1372,7 @@ react-transition-group@^4.4.5:
 
 react@^18.2.0:
   version "18.2.0"
-  resolved "https://registry.npmjs.org/react/-/react-18.2.0.tgz"
+  resolved "https://registry.yarnpkg.com/react/-/react-18.2.0.tgz#555bd98592883255fa00de14f1151a917b5d77d5"
   integrity sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==
   dependencies:
     loose-envify "^1.1.0"
@@ -1444,11 +1402,6 @@ regenerator-runtime@^0.13.11:
   version "0.13.11"
   resolved "https://registry.npmjs.org/regenerator-runtime/-/regenerator-runtime-0.13.11.tgz"
   integrity sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==
-
-remove-accents@0.4.2:
-  version "0.4.2"
-  resolved "https://registry.npmjs.org/remove-accents/-/remove-accents-0.4.2.tgz"
-  integrity sha512-7pXIJqJOq5tFgG1A2Zxti3Ht8jJF337m4sowbuHsW30ZnkQFnDzy9qBNhgzX8ZLW4+UBcXiiR7SwR6pokHsxiA==
 
 resolve@^1.1.7, resolve@^1.22.1:
   version "1.22.2"
@@ -1494,13 +1447,6 @@ scheduler@^0.23.0:
   dependencies:
     loose-envify "^1.1.0"
 
-scss@^0.2.4:
-  version "0.2.4"
-  resolved "https://registry.npmjs.org/scss/-/scss-0.2.4.tgz"
-  integrity sha512-4u8V87F+Q/upVhUmhPnB4C1R11xojkRkWjExL2v0CX2EXTg18VrKd+9JWoeyCp2VEMdSpJsyAvVU+rVjogh51A==
-  dependencies:
-    ometa "0.2.2"
-
 semver@^6.3.0:
   version "6.3.0"
   resolved "https://registry.npmjs.org/semver/-/semver-6.3.0.tgz"
@@ -1510,13 +1456,6 @@ shallowequal@^1.1.0:
   version "1.1.0"
   resolved "https://registry.npmjs.org/shallowequal/-/shallowequal-1.1.0.tgz"
   integrity sha512-y0m1JoUZSlPAjXVtPPW70aZWfIL/dSP7AFkRnniLCrK/8MDKog3TySTBmckD+RObVxH0v4Tox67+F14PdED2oQ==
-
-sort-by@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.npmjs.org/sort-by/-/sort-by-1.2.0.tgz"
-  integrity sha512-aRyW65r3xMnf4nxJRluCg0H/woJpksU1dQxRtXYzau30sNBOmf5HACpDd9MZDhKh7ALQ5FgSOfMPwZEtUmMqcg==
-  dependencies:
-    object-path "0.6.0"
 
 "source-map-js@>=0.6.2 <2.0.0", source-map-js@^1.0.2:
   version "1.0.2"

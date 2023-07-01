@@ -6,16 +6,15 @@ import axios from "../api/axios";
 const AddItem = ({
   setItems,
   setEmpty,
-  setError,
   setRefetch,
   refetch,
   type,
   initialValues,
   validationSchema,
   auth,
-  error,
 }) => {
   const [msg, setMsg] = useState("");
+  const [error, setError] = useState(false);
   const formik = useFormik({
     initialValues,
     validationSchema,
@@ -33,11 +32,14 @@ const AddItem = ({
           })
           .then(() => {
             setRefetch(true);
+            setError(false);
             formik.resetForm();
             setMsg(`${type.at(0).toUpperCase() + type.slice(1)} added`);
           });
       } catch (err) {
-        setMsg("Something went wrong, please try again later");
+        setError(true);
+        console.log(err);
+        setMsg(err.response.data.message);
       }
     },
   });

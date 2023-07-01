@@ -9,7 +9,7 @@ const CustomizedAlert = ({ msg, variant, spinner = false, setRefetch }) => {
         {spinner && <Spinner animation="border" variant="info" />}
         <p>{msg}</p>
       </div>
-      {!(variant === "info") && (
+      {!(variant === "info") && setRefetch && (
         <button onClick={() => setRefetch(true)} className="form-btn">
           <img src={refresh} alt="refresh" className="w-5 h-5" />
         </button>

@@ -9,7 +9,6 @@ const AddFeature = () => {
   const auth = useAuthValue();
   const [tags, setTags] = useState([]);
   const [empty, setEmpty] = useState(false);
-  const [error, setError] = useState(false);
   const [refetch, setRefetch] = useState(false);
   const [loading, setLoading] = useState(false);
   document.title = "Dashboard | Add Tag";
@@ -35,8 +34,6 @@ const AddFeature = () => {
           refetch={refetch}
           setRefetch={setRefetch}
           setEmpty={setEmpty}
-          setError={setError}
-          error={error}
           setItems={setTags}
           type="tag"
           validationSchema={validationSchema}
@@ -46,12 +43,10 @@ const AddFeature = () => {
           setRefetch={setRefetch}
           data={tags}
           empty={empty}
-          error={error}
           loading={loading}
           setLoading={setLoading}
           type="tag"
           auth={auth}
-          setError={setError}
         />
       </div>
     </>
