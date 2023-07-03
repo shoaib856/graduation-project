@@ -9,6 +9,7 @@ import {
 import useAuthValue from "../hooks/useAuthValue";
 import axios from "../api/axios";
 import Comment from "./Comment";
+import daysFromNow from "../utils/daysFromNow";
 
 const Post = ({
   post,
@@ -19,15 +20,16 @@ const Post = ({
   userDisLike,
   setSearch = null,
   setSelectedUser = null,
-  disableComment = false,
+  disableBtns = false,
 }) => {
   const [liked, setLiked] = useState(userLike);
-  const [numLikes, setNumLikes] = useState(post.numberOfLikes);
+  const [numLikes, setNumLikes] = useState(post?.numberOfLikes);
   const [disliked, setDisliked] = useState(userDisLike);
-  const [numDislikes, setNumDislikes] = useState(post.numberOfDisLikes);
+  const [numDislikes, setNumDislikes] = useState(post?.numberOfDisLikes);
   const [showComments, setShowComments] = useState(false);
-  const [comments, setComments] = useState([]);
-  const [comment, setComment] = useState("");
+  const [numberOfComments, setNumberOfComments] = useState(
+    post?.numberOfComments
+  );
   const [loading, setLoading] = useState(false);
   const auth = useAuthValue();
 
@@ -55,7 +57,7 @@ const Post = ({
     setLoading(true);
     await axios
       .post(
-        "/post/dislike/" + post.id,
+        "/post/dislike/" + post?.id,
         {},
         { headers: { "x-auth-token": auth.token } }
       )
@@ -77,47 +79,57 @@ const Post = ({
       <div className="flex justify-between items-center mb-2 md:flex-col md:items-start md:gap-2">
         <div className="flex flex-col items-start">
           <h3 className="text-xl font-semibold">
-            {[user.firstName, user.lastName].join(" ")}
+            {[user?.firstName, user?.lastName].join(" ")}
           </h3>
           <button
             onClick={() => {
-              setSelectedUser(user.userName);
+              setSelectedUser(user?.userName);
               setSearch("");
             }}
             className="text-xs text-blue-400 hover:text-blue-600 underline transition-all disabled:text-gray-400 disabled:no-underline"
             disabled={setSelectedUser === null}
           >
-            @{user.userName}
+            @{user?.userName}
           </button>
         </div>
-        <div className="flex gap-2">
-          {tags.map((tag) => (
-            <button
-              onClick={() => setSearch(tag)}
-              key={tag}
-              className="form-btn !text-xs px-1 py-0.5 disabled:bg-emerald-100 "
-              disabled={setSearch === null}
-            >
-              {tag}
-            </button>
-          ))}
+        <div className="flex gap-2 flex-col items-end">
+          <div className="flex gap-2">
+            {tags.map((tag) => (
+              <button
+                onClick={() => setSearch(tag)}
+                key={tag}
+                className="form-btn !text-xs px-1 py-0.5 disabled:bg-emerald-100 "
+                disabled={setSearch === null}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+          {post.UserId === auth.id && (
+            <div className="flex gap-2">
+              <button className="text-xs hover:text-blue-500">Edit</button>
+              <button className="text-xs hover:text-red-500">Delete</button>
+            </div>
+          )}
         </div>
       </div>
-      <div className="border !border-emerald-700 py-1 px-2 rounded">
-        {post.content.split("\n").map((line, i) => {
-          return (
-            <p key={i} className="break-all break-words">
+      <p className="border break-words break-all !border-emerald-700 py-1 px-2 rounded">
+        {post?.content
+          .trim()
+          .split("\n")
+          .map((line) => (
+            <>
               {line}
-            </p>
-          );
-        })}
-      </div>
+              <br />
+            </>
+          ))}
+      </p>
       <span className="absolute bottom-2 right-2 text-xs text-gray-400">
-        {new Date(post.createdAt).toLocaleString("en-Us").split(",")[0]}
+        {daysFromNow(post?.createdAt)}
       </span>
       <div className="flex gap-2 mt-2">
         <button
-          disabled={loading}
+          disabled={loading || disableBtns}
           onClick={handleLike}
           className="form-btn flex items-center gap-1"
         >
@@ -125,7 +137,7 @@ const Post = ({
           {liked ? <HandThumbsUpFill /> : <HandThumbsUp />}
         </button>
         <button
-          disabled={loading}
+          disabled={loading || disableBtns}
           onClick={handleDisLike}
           className="form-btn flex items-center gap-1"
         >
@@ -136,17 +148,19 @@ const Post = ({
         <button
           onClick={() => setShowComments(true)}
           className="form-btn flex items-center gap-1"
-          disabled={disableComment}
+          disabled={disableBtns}
         >
-          {post.numberOfComments}
+          {numberOfComments}
           <ChatFill />
         </button>
 
         {showComments && (
           <Comment
-            post={{ post, tags, images, user, userLike, userDisLike }}
+            postID={post?.id}
             setShow={setShowComments}
             show={showComments}
+            setNumberOfComments={setNumberOfComments}
+            numberOfComments={numberOfComments}
           />
         )}
       </div>

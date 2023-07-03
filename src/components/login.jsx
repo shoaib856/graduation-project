@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toastMsg } from "./message-toast";
 import InputField from "./inputField";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth.js";
 import setCookie from "../hooks/setCookie";
 import { BoxArrowInRight, XCircleFill } from "react-bootstrap-icons";
@@ -54,7 +54,6 @@ function Login({ show, onHide }) {
               id: res?.data.user_id,
             })
           );
-          navigate("/");
         })
         .catch((err) => {
           if (
@@ -74,7 +73,7 @@ function Login({ show, onHide }) {
     abortController?.abort();
     onHide();
   };
-
+  
   return (
     <Modal
       show={show}

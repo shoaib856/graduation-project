@@ -3,7 +3,7 @@ import axios from "../api/axios";
 import useAuthValue from "../hooks/useAuthValue";
 import { toastMsg } from "../components/message-toast";
 import CustomizedAlert from "../components/CustomizedAlert";
-import { Alert, Container } from "react-bootstrap";
+import { Alert, Container, Placeholder } from "react-bootstrap";
 import AddPost from "../components/AddPost";
 import Post from "../components/Post";
 import RefreshBtn from "../components/RefreshBtn";
@@ -65,6 +65,8 @@ const Community = () => {
       setFilteredPostsByUserAndTag([]);
     }
   }, [search]);
+
+  
   useEffect(() => {
     if (selectedUser) {
       const filteredPosts = posts.filter(
@@ -120,12 +122,21 @@ const Community = () => {
       </div>
 
       {loading ? (
-        <CustomizedAlert
-          msg={"Loading..."}
-          setRefetch={setRefetch}
-          variant={"info"}
-          spinner={true}
-        />
+        [1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="max-w-2xl w-full mx-auto rounded mb-1 p-4 bg-emerald-200">
+            <Placeholder as="p" animation="glow">
+              <Placeholder xs={4} />
+            </Placeholder>
+            <div className="border rounded !border-emerald-700 p-2">
+              <Placeholder as="p" animation="glow">
+                <Placeholder xs={10} />
+                <Placeholder xs={5} />
+                <Placeholder xs={8} />
+                <Placeholder xs={12} />
+              </Placeholder>
+            </div>
+          </div>
+        ))
       ) : error ? (
         <CustomizedAlert
           msg={"Something went wrong, please try again later"}

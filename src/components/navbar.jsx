@@ -23,9 +23,11 @@ import {
 } from "react-bootstrap-icons";
 import { setUserImage } from "../context/userImg";
 import { useRefetchState } from "../context/refetch";
+import { handleUserData } from "../context/userData";
 
 function NavBar() {
   const [auth, setAuth] = useAuth();
+  const [userData, setUserData] = handleUserData();
   const navigate = useNavigate();
   const [loader, setLoader] = useLoader();
   const [userImg, setUserImg] = setUserImage();
@@ -33,6 +35,23 @@ function NavBar() {
   const [showList, setShowList] = useState(false);
   const [showNavList, setShowNavList] = useState(false);
   const [refetch, setRefetch] = useRefetchState();
+
+  const getData = async () => {
+    try {
+      await axios
+        .get(`/user/${auth.id}`, {
+          headers: { "x-auth-token": auth?.token },
+        })
+        .then((res) => {
+          setUserData(res.data.data.user);
+        });
+    } catch (err) {
+      console.error(err.response.data.message);
+    }
+  };
+  useEffect(() => {
+    auth && getData();
+  }, [auth]);
 
   const handleLogout = async () => {
     setLoader(true);

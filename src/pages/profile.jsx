@@ -23,6 +23,7 @@ import { useImmer } from "use-immer";
 import * as Yup from "yup";
 import DefaultUserLogo from "../components/DefaultUserLogo";
 import CustomizedAlert from "../components/CustomizedAlert";
+import { useUserData } from "../context/userData";
 
 const validationSchema = Yup.object({
   userName: Yup.string()
@@ -68,6 +69,9 @@ const initialValues = {
 
 function Profile() {
   const [auth, setAuth] = useAuth();
+
+  const userData = useUserData();
+
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [refetch, setRefetch] = useState(false);
@@ -146,22 +150,26 @@ function Profile() {
   const getData = async () => {
     try {
       setLoading(true);
-      await axios
-        .get(`user/${profileLocation ? auth?.id : params.id}`, {
-          headers: { "x-auth-token": auth?.token },
-        })
-        .then((res) => {
-          toastMsg("success", res.data.message);
-          formik.setValues(res.data.data.user);
-          setUser(res.data.data.user);
-          setLoading(false);
-          setRefetch(false);
-        })
-        .catch(() => {
-          setError(true);
-          setRefetch(false);
-          setLoading(false);
-        });
+      if (userData && profileLocation) {
+        formik.setValues(userData);
+        setUser(userData);
+      } else {
+        await axios
+          .get(`user/${profileLocation ? auth?.id : params.id}`, {
+            headers: { "x-auth-token": auth?.token },
+          })
+          .then((res) => {
+            formik.setValues(res.data.data.user);
+            setUser(res.data.data.user);
+            setLoading(false);
+            setRefetch(false);
+          })
+          .catch(() => {
+            setError(true);
+            setRefetch(false);
+            setLoading(false);
+          });
+      }
     } catch (err) {
       setLoading(false);
       toastMsg("error", "You Must Login or Register first");

@@ -11,6 +11,8 @@ import DefaultUserLogo from "../components/DefaultUserLogo";
 
 import refreshIcon from "../assets/icons/refresh.svg";
 
+import daysFromNow from "../utils/daysFromNow";
+
 const colors = [
   "bg-red-400",
   "bg-orange-400",
@@ -185,8 +187,8 @@ function Dashboard() {
           <>
             {[1, 2, 3, 4, 5, 6].map((n) => {
               return (
-                <Card key={n}>
-                  <Card.Body className="flex items-center gap-2 bg-slate-50">
+                <Card key={n} className="rounded-ss-3xl rounded-ee-3xl">
+                  <Card.Body className="flex items-center gap-2 bg-slate-50 rounded !rounded-ss-3xl !rounded-ee-3xl">
                     <PersonCircle className=" rounded-full text-9xl text-gray-400" />
                     <div className="w-full">
                       <Placeholder as={Card.Title} animation="glow">
@@ -208,8 +210,11 @@ function Dashboard() {
           <>
             {usersData.map((userData) => {
               return (
-                <Card key={userData.user.id}>
-                  <Card.Body className="flex items-center bg-slate-50 justify-between gap-2">
+                <Card
+                  key={userData.user.id}
+                  className="rounded-ss-3xl rounded-ee-3xl"
+                >
+                  <Card.Body className="flex items-center bg-slate-50 rounded !rounded-ss-3xl !rounded-ee-3xl justify-between gap-2">
                     <div id="user-logo">
                       <DefaultUserLogo
                         dims={"w-16 h-16"}
@@ -221,7 +226,9 @@ function Dashboard() {
                     </div>
                     <div id="user-data" className="flex flex-col flex-1 gap-1">
                       <Card.Title className="font-bold text-xl flex justify-between">
-                        <p>{userData.user.userName}</p>
+                        <p className="truncate w-40">
+                          {userData.user.userName}
+                        </p>
                         <Dropdown drop="down">
                           <Dropdown.Toggle
                             className={`after:!hidden !border-none !bg-transparent text-black`}
@@ -259,52 +266,24 @@ function Dashboard() {
                           </Dropdown.Menu>
                         </Dropdown>
                       </Card.Title>
-                      <Card.Text className="text-sm text-gray-500">
+                      <Card.Text className="text-sm truncate w-44 text-gray-500">
                         {userData.user.email}
                       </Card.Text>
                       <Card.Text className="text-sm text-gray-500">
                         Role: {userData.user.role}
                       </Card.Text>
-                      <Card.Text className="text-xs text-gray-400 absolute bottom-0 right-1">
-                        Joined at:
-                        {
-                          new Date(userData.user.createdAt)
-                            .toLocaleString("en-Us")
-                            .split(",")[0]
-                        }
+                      <Card.Text className="text-xs text-gray-400 absolute bottom-2 right-3">
+                        Joined from:
+                        {daysFromNow(userData.user.createdAt)}
                       </Card.Text>
-                      <Card.Text className="text-xs text-gray-400 absolute bottom-0 left-1">
-                        last update:
-                        {
-                          // determine number of days since last update
-                          Math.floor(
-                            (new Date() - new Date(userData.user.updatedAt)) /
-                              (1000 * 60 * 60 * 24)
-                          ) === 0
-                            ? " today"
-                            : Math.floor(
-                                (new Date() -
-                                  new Date(userData.user.updatedAt)) /
-                                  (1000 * 60 * 60 * 24)
-                              ) === 1
-                            ? " yesterday"
-                            : Math.floor(
-                                (new Date() -
-                                  new Date(userData.user.updatedAt)) /
-                                  (1000 * 60 * 60 * 24)
-                              ) > 1
-                            ? ` ${Math.floor(
-                                (new Date() -
-                                  new Date(userData.user.updatedAt)) /
-                                  (1000 * 60 * 60 * 24)
-                              )} days ago`
-                            : null
-                        }
+                      <Card.Text className="text-xs text-gray-400 absolute bottom-2 left-2">
+                        updated from:
+                        {daysFromNow(userData.user.updatedAt)}
                       </Card.Text>
 
                       <Link
                         to={`user-details/${userData.user.id}/`}
-                        className="form-btn"
+                        className="form-btn mb-3"
                       >
                         Details
                       </Link>
