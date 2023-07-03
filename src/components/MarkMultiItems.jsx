@@ -8,7 +8,7 @@ const MarkMultiItems = ({
   itemDescription,
   itemPrice = null,
   itemType,
-  
+  formikValues,
 }) => {
   return (
     <ListGroup.Item>
@@ -21,6 +21,7 @@ const MarkMultiItems = ({
             name={itemType}
             {...formikProps(itemType)}
             value={itemName}
+            checked={formikValues[itemType].includes(itemName)}
           />
           <Form.Check.Label className="grow cursor-pointer">
             {itemName}

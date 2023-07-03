@@ -9,7 +9,14 @@ import useAuthValue from "../hooks/useAuthValue";
 import CustomizedAlert from "./CustomizedAlert";
 import AddItem from "./AddItem";
 
-const AddPost = ({ show, setShow, setRefetch }) => {
+const AddPost = ({
+  show,
+  setShow,
+  setRefetch,
+  initialValues,
+  edit,
+  postID,
+}) => {
   const auth = useAuthValue();
   const [tags, setTags] = useState([]);
   const [error, setError] = useState(false);
@@ -18,38 +25,49 @@ const AddPost = ({ show, setShow, setRefetch }) => {
   const [loading, setLoading] = useState(false);
 
   const formik = useFormik({
-    initialValues: {
-      content: "",
-      tags: [],
-    },
+    initialValues,
     onSubmit: async (values) => {
+      const handleAccept = (res) => {
+        toastMsg("success", res.data.message);
+        setShow(false);
+        setRefetch(true);
+        formik.resetForm();
+      };
+      const handleReject = (err) => {
+        if (
+          err.name === "AbortError" ||
+          abortController?.signal.aborted ||
+          err.name === "CanceledError"
+        ) {
+          console.log("aborted");
+        } else {
+          console.log(err);
+        }
+        toastMsg("error", err.response.data.message);
+      };
       const controller = new AbortController();
       setAbortController(controller);
-      await axios
-        .post("/post", values, {
-          signal: controller.signal,
-          headers: {
-            "x-auth-token": auth.token,
-          },
-        })
-        .then((res) => {
-          toastMsg("success", res.data.message);
-          setShow(false);
-          setRefetch(true);
-          formik.resetForm();
-        })
-        .catch((err) => {
-          if (
-            err.name === "AbortError" ||
-            abortController?.signal.aborted ||
-            err.name === "CanceledError"
-          ) {
-            console.log("aborted");
-          } else {
-            console.log(err);
-          }
-          toastMsg("error", err.response.data.message);
-        });
+      if (edit) {
+        await axios
+          .put(`/post/${postID}`, values, {
+            signal: controller.signal,
+            headers: {
+              "x-auth-token": auth.token,
+            },
+          })
+          .then((res) => handleAccept(res))
+          .catch((err) => handleReject(err));
+      } else {
+        await axios
+          .post("/post", values, {
+            signal: controller.signal,
+            headers: {
+              "x-auth-token": auth.token,
+            },
+          })
+          .then((res) => handleAccept(res))
+          .catch((err) => handleReject(err));
+      }
     },
   });
   const handleCancel = () => {
@@ -83,7 +101,7 @@ const AddPost = ({ show, setShow, setRefetch }) => {
       }}
     >
       <Modal.Header className="flex justify-between items-center">
-        <Modal.Title>Add Post</Modal.Title>
+        <Modal.Title>{edit ? "Edit" : "Add"} Post</Modal.Title>
         <XCircleFill onClick={handleCancel} className="close-btn" />
       </Modal.Header>
       <Modal.Body>
@@ -123,6 +141,7 @@ const AddPost = ({ show, setShow, setRefetch }) => {
                     itemDescription={tag.describtion}
                     itemName={tag.tag}
                     itemType={"tags"}
+                    formikValues={formik.values}
                   />
                 ))
               ) : (
@@ -143,7 +162,9 @@ const AddPost = ({ show, setShow, setRefetch }) => {
           onClick={() => formik.submitForm()}
           className="form-btn"
         >
-          {formik.isSubmitting ? "Loading..." : "Add Post"}
+          {formik.isSubmitting
+            ? "Loading..."
+            : (edit ? "Edit" : "Add") + " Post"}
         </button>
         <button
           onClick={handleCancel}

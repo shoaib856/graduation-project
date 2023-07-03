@@ -66,7 +66,6 @@ const Community = () => {
     }
   }, [search]);
 
-  
   useEffect(() => {
     if (selectedUser) {
       const filteredPosts = posts.filter(
@@ -79,9 +78,14 @@ const Community = () => {
   }, [selectedUser]);
 
   return (
-    <Container>
+    <Container className="self-start">
       {show && (
-        <AddPost setRefetch={setRefetch} show={show} setShow={setShow} />
+        <AddPost
+          initialValues={{ content: "", tags: [] }}
+          setRefetch={setRefetch}
+          show={show}
+          setShow={setShow}
+        />
       )}
       <div className="px-2 py-1 backdrop-blur my-2 flex flex-col gap-1 sticky top-[5.3rem] md:top-14 z-10">
         <div className="flex flex-wrap justify-between items-center">
@@ -123,7 +127,10 @@ const Community = () => {
 
       {loading ? (
         [1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="max-w-2xl w-full mx-auto rounded mb-1 p-4 bg-emerald-200">
+          <div
+            key={i}
+            className="max-w-2xl w-full mx-auto rounded mb-1 p-4 bg-emerald-200"
+          >
             <Placeholder as="p" animation="glow">
               <Placeholder xs={4} />
             </Placeholder>
@@ -161,6 +168,7 @@ const Community = () => {
               userLike={post.userLike}
               userDisLike={post.userDisLike}
               setSearch={setSearch}
+              setRefetch={setRefetch}
             />
           ))
         ) : (
@@ -174,6 +182,7 @@ const Community = () => {
               userLike={post.userLike}
               userDisLike={post.userDisLike}
               setSearch={setSearch}
+              setRefetch={setRefetch}
             />
           ))
         )
@@ -189,6 +198,7 @@ const Community = () => {
             userDisLike={post.userDisLike}
             setSearch={setSearch}
             setSelectedUser={setSelectedUser}
+            setRefetch={setRefetch}
           />
         ))
       ) : (
@@ -203,6 +213,7 @@ const Community = () => {
             userDisLike={post.userDisLike}
             setSearch={setSearch}
             setSelectedUser={setSelectedUser}
+            setRefetch={setRefetch}
           />
         ))
       )}

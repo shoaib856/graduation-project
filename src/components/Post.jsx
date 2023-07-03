@@ -10,6 +10,9 @@ import useAuthValue from "../hooks/useAuthValue";
 import axios from "../api/axios";
 import Comment from "./Comment";
 import daysFromNow from "../utils/daysFromNow";
+import AddPost from "./AddPost";
+import WarningMessage from "./warningMessage";
+import { toastMsg } from "./message-toast";
 
 const Post = ({
   post,
@@ -21,14 +24,18 @@ const Post = ({
   setSearch = null,
   setSelectedUser = null,
   disableBtns = false,
+  setRefetch,
+  numComments = null,
 }) => {
+  const [showEdit, setShowEdit] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
   const [liked, setLiked] = useState(userLike);
   const [numLikes, setNumLikes] = useState(post?.numberOfLikes);
   const [disliked, setDisliked] = useState(userDisLike);
   const [numDislikes, setNumDislikes] = useState(post?.numberOfDisLikes);
   const [showComments, setShowComments] = useState(false);
   const [numberOfComments, setNumberOfComments] = useState(
-    post?.numberOfComments
+    numComments || post?.numberOfComments
   );
   const [loading, setLoading] = useState(false);
   const auth = useAuthValue();
@@ -92,9 +99,9 @@ const Post = ({
             @{user?.userName}
           </button>
         </div>
-        <div className="flex gap-2 flex-col items-end">
+        <div className="flex gap-2 flex-col items-end md:items-start">
           <div className="flex gap-2">
-            {tags.map((tag) => (
+            {tags?.map((tag) => (
               <button
                 onClick={() => setSearch(tag)}
                 key={tag}
@@ -107,8 +114,43 @@ const Post = ({
           </div>
           {post.UserId === auth.id && (
             <div className="flex gap-2">
-              <button className="text-xs hover:text-blue-500">Edit</button>
-              <button className="text-xs hover:text-red-500">Delete</button>
+              <AddPost
+                initialValues={{ content: post.content, tags: tags }}
+                show={showEdit}
+                setShow={setShowEdit}
+                edit={true}
+                postID={post.id}
+                setRefetch={setRefetch}
+              />
+              <button
+                onClick={() => setShowEdit(true)}
+                className="text-xs hover:text-blue-500"
+              >
+                Edit
+              </button>
+              <WarningMessage
+                process={() => {
+                  axios
+                    .delete("/post/" + post.id, {
+                      headers: { "x-auth-token": auth.token },
+                    })
+                    .then(() => {
+                      toastMsg("success", "Post deleted");
+                      setRefetch(true);
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                    });
+                }}
+                show={showDelete}
+                setShow={setShowDelete}
+              />
+              <button
+                onClick={() => setShowDelete(true)}
+                className="text-xs hover:text-red-500"
+              >
+                Delete
+              </button>
             </div>
           )}
         </div>
@@ -157,6 +199,7 @@ const Post = ({
         {showComments && (
           <Comment
             postID={post?.id}
+            post={{ post, images, userDisLike, userLike, user, tags }}
             setShow={setShowComments}
             show={showComments}
             setNumberOfComments={setNumberOfComments}

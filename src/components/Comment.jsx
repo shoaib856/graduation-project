@@ -1,49 +1,62 @@
 import { useFormik } from "formik";
-import React, { useEffect } from "react";
-import { Button, Modal, Placeholder } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import { Modal, Placeholder } from "react-bootstrap";
 import { Send, XCircleFill } from "react-bootstrap-icons";
 import Post from "./Post";
 import useAuthValue from "../hooks/useAuthValue";
 import axios from "../api/axios";
-import daysFromNow from "../utils/daysFromNow";
-import { useUserData } from "../context/userData";
+import ShowComment from "./ShowComment";
 
 const Comment = ({
   show,
   setShow,
   postID,
+  post,
   setNumberOfComments,
   numberOfComments,
 }) => {
   const auth = useAuthValue();
-  // const userData = useUserData();
-  const [comments, setComments] = React.useState(null);
-  const [refetch, setRefetch] = React.useState(false);
-  const [showReply, setShowReply] = React.useState({ show: false, id: null });
-  const [post, setPost] = React.useState(null);
 
+  const [comments, setComments] = useState(null);
+  const [refetch, setRefetch] = useState(false);
+  const [showReply, setShowReply] = useState({ show: false, id: null });
+  const [abortController, setAbortController] = useState(null);
   const handleCancel = () => {
     setShow(false);
+    abortController?.abort();
   };
   const formikReply = useFormik({
     initialValues: {
       content: "",
     },
     onSubmit: async (values) => {
+      const controller = new AbortController();
+      setAbortController(controller);
+
       await axios
-        .post(
-          "/comment/oncomment/" + showReply.id,
-          { content: values.content },
-          { headers: { "x-auth-token": auth.token } }
-        )
-        .then((res) => {
-          console.log(res.data.data);
+        .post("/comment/oncomment/" + showReply.id, values, {
+          signal: controller.signal,
+          headers: {
+            "x-auth-token": auth.token,
+            "Content-Type": "application/json",
+          },
+        })
+        .then(() => {
           setRefetch(true);
+          setNumberOfComments(numberOfComments + 1);
           formikReply.resetForm();
           setShowReply({ show: false, id: null });
         })
         .catch((err) => {
-          console.log(err.response.data);
+          if (
+            err.name === "AbortError" ||
+            abortController?.signal.aborted ||
+            err.name === "CanceledError"
+          ) {
+            console.log("Request canceled");
+          } else {
+            console.log(err);
+          }
         });
     },
   });
@@ -52,20 +65,31 @@ const Comment = ({
       content: "",
     },
     onSubmit: async (values) => {
+      const controller = new AbortController();
+      setAbortController(controller);
       await axios
-        .post(
-          "/comment/onpost/" + post.post.id,
-          { content: values.content },
-          { headers: { "x-auth-token": auth.token } }
-        )
-        .then((res) => {
-          console.log(res.data.data);
+        .post("/comment/onpost/" + post.post.id, values, {
+          signal: controller.signal,
+          headers: {
+            "x-auth-token": auth.token,
+            "Content-Type": "application/json",
+          },
+        })
+        .then(() => {
           setNumberOfComments(numberOfComments + 1);
           setRefetch(true);
           formikComment.resetForm();
         })
         .catch((err) => {
-          console.log(err.response.data);
+          if (
+            err.name === "AbortError" ||
+            abortController?.signal.aborted ||
+            err.name === "CanceledError"
+          ) {
+            console.log("Request canceled");
+          } else {
+            console.error(err);
+          }
         });
     },
   });
@@ -80,32 +104,13 @@ const Comment = ({
       })
       .catch((err) => {
         setRefetch(false);
-        console.log(err.response.data);
+        console.log(err);
       });
   };
-  const getPost = async () => {
-    await axios
-      .get("/post/" + postID, { headers: { "x-auth-token": auth.token } })
-      .then((res) => {
-        setPost(res.data.data);
-      })
-      .catch((err) => {
-        console.error(err.response.data);
-      });
-  };
-  useEffect(() => {
-    getPost();
-  }, [auth, postID]);
-  useEffect(() => {
-    console.log(post);
-  }, []);
+
   useEffect(() => {
     getComments();
   }, [auth, refetch]);
-
-  useEffect(() => {
-    console.log(post);
-  }, [post]);
 
   return (
     <Modal show={show} onHide={handleCancel} className="max-h-screen">
@@ -123,6 +128,7 @@ const Comment = ({
             userDisLike={post.userDisLike}
             userLike={post.userLike}
             disableBtns={true}
+            numComments={numberOfComments}
           />
         ) : (
           <div className="p-4 bg-emerald-200 rounded">
@@ -240,64 +246,12 @@ const WriteComment = ({ formik, handleCancel }) => {
         <button
           type="button"
           className="form-btn"
+          disabled={formik.isSubmitting}
           onClick={formik.handleSubmit}
         >
           <Send className="text-lg" />
         </button>
       </div>
     </>
-  );
-};
-const ShowComment = ({ comment, setShowReply, className }) => {
-  return (
-    <div
-      className={
-        "bg-emerald-100 flex flex-col mb-1 rounded py-1 px-2 " + className
-      }
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <span className="font-semibold">
-            {[comment.user?.firstName, comment.user?.lastName].join(" ")}
-          </span>
-        </div>
-        <div>
-          <span className="text-xs text-gray-500">
-            {daysFromNow(comment.comment.createdAt)}
-          </span>
-        </div>
-      </div>
-      <div className="flex justify-between">
-        <p className="text-sm break-words break-all">
-          {comment.comment.content
-            .trim()
-            .split("\n")
-            .map((line) => (
-              <>
-                {line} <br />
-              </>
-            ))}
-        </p>
-        <div className="flex self-end gap-2">
-          <button className="text-xs text-gray-500 hover:text-blue-500">
-            {comment.comment.numberOfLikes} likes
-          </button>
-          <button className="text-xs text-gray-500 hover:text-red-500">
-            {comment.comment.numberOfDisLikes} dislikes
-          </button>
-          <button
-            onClick={() => {
-              setShowReply({
-                show: true,
-                id: comment.comment.CommentId || comment.comment.id,
-              });
-            }}
-            className="text-xs text-gray-500 hover:text-green-500"
-          >
-            reply
-          </button>
-        </div>
-      </div>
-    </div>
   );
 };
