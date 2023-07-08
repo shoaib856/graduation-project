@@ -1,5 +1,4 @@
 import { Container } from "react-bootstrap";
-import error404 from "../assets/images/404page.png";
 import { Link } from "react-router-dom";
 
 const NotFound = () => {
