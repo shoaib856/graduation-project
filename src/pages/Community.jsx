@@ -100,8 +100,8 @@ const Community = () => {
             />
           </div>
           <div className="flex gap-1 order-3 md:!order-2 ">
-            <button className="form-btn" onClick={() => setShow(true)}>
-              Add Post
+            <button className="form-btn !px-2" onClick={() => setShow(true)}>
+              +
             </button>
             <RefreshBtn setRefetch={setRefetch} />
           </div>

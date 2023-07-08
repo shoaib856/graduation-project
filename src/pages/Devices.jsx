@@ -1,16 +1,21 @@
 import { useEffect, useState } from "react";
 import axios from "../api/axios";
 import useAuthValue from "../hooks/useAuthValue";
-import { Alert, ListGroup } from "react-bootstrap";
+import { Alert, ListGroup, Placeholder } from "react-bootstrap";
 import { toastMsg } from "../components/message-toast";
 import { Trash } from "react-bootstrap-icons";
 import CustomizedAlert from "../components/CustomizedAlert";
+import WarningMessage from "../components/warningMessage";
+import RefreshBtn from "../components/RefreshBtn";
 
 const Devices = () => {
   const auth = useAuthValue();
   const [devices, setDevices] = useState([]);
-  const [refetch, setRefetch] = useState(false);
+  const [refetch, setRefetch] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [abortController, setAbortController] = useState(null);
 
   const getData = async () => {
     setLoading(true);
@@ -23,7 +28,6 @@ const Devices = () => {
       .then((res) => {
         setDevices(res.data.data);
         setLoading(false);
-        toastMsg("success", "Devices loaded :)");
         setRefetch(false);
       })
       .catch((err) => {
@@ -31,33 +35,62 @@ const Devices = () => {
       });
   };
   const handleDelete = async (id) => {
+    const controller = new AbortController();
+    setAbortController(controller);
+    setDeleteLoading(true);
+
     await axios
       .delete(`/token/${id}`, {
+        signal: controller.signal,
         headers: {
           "x-auth-token": auth.token,
         },
       })
-      .then((res) => {
+      .then(() => {
+        setDeleteLoading(false);
         setRefetch(true);
-        toastMsg("success", `${res.data.message} Reloading...`);
+        setShowDelete(false);
+        toastMsg("success", `Done`);
       })
       .catch((err) => {
-        toastMsg("error", err.response.data.message);
-        setLoading(false);
+        if (abortController?.signal.aborted) {
+          console.log("aborted");
+          return;
+        }
+        console.log(err);
+        setDeleteLoading(false);
       });
+  };
+  const handleCancel = () => {
+    setShowDelete(false);
+    setDeleteLoading(false);
+    abortController?.abort();
   };
 
   useEffect(() => {
     getData();
   }, [auth, refetch]);
 
-  
   return (
     <div className="w-full py-3 px-1 flex flex-col gap-4 items-center bg-white !rounded-xl shadow-xl">
-      <h1 className="text-4xl w-full text-emerald-600 pl-3">Devices</h1>
+      <div className="flex justify-between w-full px-2 items-center">
+        <h1 className="text-4xl text-emerald-600">Devices</h1>
+        <RefreshBtn setRefetch={setRefetch} refetch={refetch} />
+      </div>
       <ListGroup className="w-full gap-2">
         {loading ? (
-          <CustomizedAlert msg={"Loading..."} variant={"info"} spinner={true} />
+          <div className="flex flex-col gap-2">
+            {[1, 2, 3, 4, 5, 6].map((item) => {
+              return (
+                <div key={item} className="border px-3 py-2 rounded">
+                  <Placeholder key={item} animation="glow">
+                    <Placeholder xs={6} />
+                    <Placeholder xs={7} />
+                  </Placeholder>
+                </div>
+              );
+            })}
+          </div>
         ) : devices.length === 0 ? (
           <CustomizedAlert msg={"No devices found"} variant={"warning"} />
         ) : (
@@ -91,8 +124,16 @@ const Devices = () => {
                   <p className="text-lg">{device.clientName}</p>
                 </div>
                 <div className="flex flex-col justify-center items-center">
+                  <WarningMessage
+                    process={handleDelete}
+                    param={device.id}
+                    setShow={setShowDelete}
+                    show={showDelete}
+                    loading={deleteLoading}
+                    handleCancel={handleCancel}
+                  />
                   <button
-                    onClick={() => handleDelete(device.id)}
+                    onClick={() => setShowDelete(true)}
                     className="bg-red-500 hover:bg-red-600 text-2xl text-white p-1 rounded disabled:opacity-50"
                     disabled={device.token === auth.token}
                   >

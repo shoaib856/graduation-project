@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Alert, Badge, Container, Form } from "react-bootstrap";
+import { Badge, Container, Form, Modal } from "react-bootstrap";
 import InputField from "./inputField";
 import { useFormik } from "formik";
 import axios from "../api/axios";
+import { XCircleFill } from "react-bootstrap-icons";
 const AddItem = ({
-  setItems,
-  setEmpty,
   setRefetch,
-  refetch,
   type,
   initialValues,
   validationSchema,
   auth,
+  show,
+  setShow,
+  request = false,
 }) => {
   const [msg, setMsg] = useState("");
   const [error, setError] = useState(false);
@@ -24,17 +25,28 @@ const AddItem = ({
         : null;
       try {
         await axios
-          .post(`/${type}`, values, {
-            headers: {
-              "Content-Type": "application/json",
-              "x-auth-token": auth.token,
-            },
-          })
+          .post(
+            `/${request && type === "tag" ? type + "/addTagRequest" : type}`,
+            values,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                "x-auth-token": auth.token,
+              },
+            }
+          )
           .then(() => {
-            setRefetch(true);
+            setRefetch ? setRefetch(true) : "";
             setError(false);
             formik.resetForm();
-            setMsg(`${type.at(0).toUpperCase() + type.slice(1)} added`);
+            setMsg(
+              `${type?.at(0).toUpperCase() + type?.slice(1)}${
+                request ? " Request" : ""
+              } added`
+            );
+            setTimeout(() => {
+              setShow(false);
+            }, 1000);
           });
       } catch (err) {
         setError(true);
@@ -44,51 +56,33 @@ const AddItem = ({
     },
   });
 
-  const getData = async () => {
-    await axios
-      .get(`/${type}`, {
-        headers: {
-          "x-auth-token": auth.token,
-        },
-      })
-      .then((res) => {
-        setItems(res.data.data);
-        res.data.data.length === 0 ? setEmpty(true) : setEmpty(false);
-        setRefetch(false);
-      })
-      .catch((err) => {
-        setError(true);
-        setMsg("Something went wrong, please try again later");
-      });
+  const onHide = () => {
+    setShow(false);
+    formik.resetForm();
   };
 
-  useEffect(() => {
-    getData();
-  }, [auth, refetch]);
   useEffect(() => {
     if (msg) {
       setTimeout(() => {
         setMsg("");
-      }, 3000);
+      }, 2000);
     }
   }, [msg]);
   return (
-    <>
-      <Alert
-        variant="light"
-        className="!pl-3 text-2xl text-emerald-600 flex items-center justify-between"
-      >
-        <p>Add {type.at(0).toUpperCase() + type.slice(1)}</p>
+    <Modal centered show={show} onHide={onHide}>
+      <Modal.Header className="flex justify-between items-center">
+        <Modal.Title>
+          {request ? "Request" : "Add"}{" "}
+          {type?.at(0).toUpperCase() + type?.slice(1)}
+        </Modal.Title>
         {msg ? (
           <Badge className="text-xs" bg={error ? "danger" : "success"}>
             {msg}
           </Badge>
         ) : null}
-      </Alert>
-      <form
-        onSubmit={formik.handleSubmit}
-        className="flex flex-col gap-1 text-lg"
-      >
+        <XCircleFill className="close-btn" onClick={onHide} />
+      </Modal.Header>
+      <Modal.Body>
         <InputField
           Label="Name"
           type="text"
@@ -126,16 +120,18 @@ const AddItem = ({
             touched={formik.touched}
           />
         ) : null}
-
+      </Modal.Body>
+      <Modal.Footer>
         <button
-          type="submit"
+          type="button"
+          onClick={formik.handleSubmit}
           className="form-btn"
           disabled={formik.isSubmitting || !(formik.isValid && formik.dirty)}
         >
           {formik.isSubmitting ? "Submitting..." : "Submit"}
         </button>
-      </form>
-    </>
+      </Modal.Footer>
+    </Modal>
   );
 };
 

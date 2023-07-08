@@ -12,12 +12,12 @@ const InputField = ({
   return (
     <Form.Group className="mb-2">
       {Label && (
-        <Container fluid className="flex justify-between items-center pb-1">
+        <div className="flex justify-between items-center pb-1">
           <label htmlFor={id}>{Label}</label>
           {errors[id] && touched[id] ? (
             <Badge bg="danger">{errors[id]}</Badge>
           ) : null}
-        </Container>
+        </div>
       )}
       <Form.Control
         id={id}

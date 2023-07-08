@@ -1,6 +1,13 @@
 import { Modal } from "react-bootstrap";
 
-const WarningMessage = ({ show, setShow, process, param = null }) => {
+const WarningMessage = ({
+  show,
+  setShow,
+  process,
+  param = null,
+  loading,
+  handleCancel = null,
+}) => {
   const handleClose = () => {
     setShow(false);
   };
@@ -13,12 +20,13 @@ const WarningMessage = ({ show, setShow, process, param = null }) => {
           onClick={() => {
             param ? process(param) : process();
           }}
+          disabled={loading}
         >
-          Yes, do it!
+          {loading ? "Processing..." : "Yes, do it!"}
         </button>
         <button
           className="text-red-300 hover:text-red-600"
-          onClick={handleClose}
+          onClick={() => handleCancel() || handleClose()}
         >
           No, cancel!
         </button>

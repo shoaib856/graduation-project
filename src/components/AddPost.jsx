@@ -1,6 +1,6 @@
 import { useFormik } from "formik";
 import React, { useEffect, useState } from "react";
-import { Alert, ListGroup, Modal } from "react-bootstrap";
+import { Alert, Form, ListGroup, Modal } from "react-bootstrap";
 import { XCircleFill } from "react-bootstrap-icons";
 import axios from "../api/axios";
 import MarkMultiItems from "./MarkMultiItems";
@@ -8,6 +8,7 @@ import { toastMsg } from "./message-toast";
 import useAuthValue from "../hooks/useAuthValue";
 import CustomizedAlert from "./CustomizedAlert";
 import AddItem from "./AddItem";
+import * as Yup from "yup";
 
 const AddPost = ({
   show,
@@ -21,8 +22,21 @@ const AddPost = ({
   const [tags, setTags] = useState([]);
   const [error, setError] = useState(false);
   const [abortController, setAbortController] = useState(null);
-
+  const [showRequest, setShowRequest] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const validationSchema = Yup.object({
+    tag: Yup.string()
+      .required("Required")
+      .min(3, "Must be 3 characters or more"),
+    describtion: Yup.string()
+      .required("Required")
+      .min(10, "Must be 10 characters or more"),
+  });
+  const initialValuesRequestedTag = {
+    tag: "",
+    describtion: "",
+  };
 
   const formik = useFormik({
     initialValues,
@@ -69,6 +83,11 @@ const AddPost = ({
           .catch((err) => handleReject(err));
       }
     },
+    validationSchema: Yup.object({
+      content: Yup.string()
+        .required("Required")
+        .min(10, "Must be 10 characters or more"),
+    }),
   });
   const handleCancel = () => {
     abortController?.abort();
@@ -95,6 +114,7 @@ const AddPost = ({
 
   return (
     <Modal
+      centered
       show={show}
       onHide={() => {
         setShow(false);
@@ -107,6 +127,10 @@ const AddPost = ({
       <Modal.Body>
         <form>
           <div className="form-group">
+            <Form.Text muted>
+              minimum characters 10, maximum characters 1000
+            </Form.Text>
+
             <textarea
               className="form-control form-field"
               id="content"
@@ -158,7 +182,7 @@ const AddPost = ({
       </Modal.Body>
       <Modal.Footer className="flex justify-between items-center">
         <button
-          disabled={formik.isSubmitting}
+          disabled={formik.isSubmitting || !(formik.isValid && formik.dirty)}
           onClick={() => formik.submitForm()}
           className="form-btn"
         >
@@ -173,12 +197,26 @@ const AddPost = ({
           Cancel
         </button>
 
-        <span>
+        <div>
           Can't find your tag?{" "}
-          <a href="/tags" className="text-blue-500 hover:text-blue-700">
+          <button
+            onClick={() => setShowRequest(true)}
+            className="underline text-blue-500 hover:text-blue-700"
+          >
             Request One
-          </a>
-        </span>
+          </button>
+          {showRequest && (
+            <AddItem
+              auth={auth}
+              show={showRequest}
+              setShow={setShowRequest}
+              type={"tag"}
+              request={true}
+              initialValues={initialValuesRequestedTag}
+              validationSchema={validationSchema}
+            />
+          )}
+        </div>
       </Modal.Footer>
     </Modal>
   );

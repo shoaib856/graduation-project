@@ -23,7 +23,7 @@ import { useImmer } from "use-immer";
 import * as Yup from "yup";
 import DefaultUserLogo from "../components/DefaultUserLogo";
 import CustomizedAlert from "../components/CustomizedAlert";
-import { useUserData } from "../context/userData";
+import { handleUserData, useUserData } from "../context/userData";
 
 const validationSchema = Yup.object({
   userName: Yup.string()
@@ -70,7 +70,7 @@ const initialValues = {
 function Profile() {
   const [auth, setAuth] = useAuth();
 
-  const userData = useUserData();
+  const [userData, setUserData] = handleUserData();
 
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
@@ -149,11 +149,11 @@ function Profile() {
 
   const getData = async () => {
     try {
-      setLoading(true);
       if (userData && profileLocation) {
         formik.setValues(userData);
         setUser(userData);
       } else {
+        setLoading(true);
         await axios
           .get(`user/${profileLocation ? auth?.id : params.id}`, {
             headers: { "x-auth-token": auth?.token },
@@ -161,6 +161,7 @@ function Profile() {
           .then((res) => {
             formik.setValues(res.data.data.user);
             setUser(res.data.data.user);
+            setUserData(res.data.data.user);
             setLoading(false);
             setRefetch(false);
           })
@@ -280,8 +281,8 @@ function Profile() {
               <DefaultUserLogo
                 dims={"w-32 h-32"}
                 nameAbbreviation={
-                  user.firstName[0].toUpperCase() +
-                  user.lastName[0].toUpperCase()
+                  user.firstName[0]?.toUpperCase() +
+                  user.lastName[0]?.toUpperCase()
                 }
               />
             )}

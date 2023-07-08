@@ -35,6 +35,7 @@ function NavBar() {
   const [showList, setShowList] = useState(false);
   const [showNavList, setShowNavList] = useState(false);
   const [refetch, setRefetch] = useRefetchState();
+  const [error, setError] = useState(false);
 
   const getData = async () => {
     try {
@@ -43,15 +44,18 @@ function NavBar() {
           headers: { "x-auth-token": auth?.token },
         })
         .then((res) => {
+          console.log("Data fetched");
+          setError(false);
           setUserData(res.data.data.user);
         });
     } catch (err) {
-      console.error(err.response.data.message);
+      setError(true);
+      console.error(err.response.data.message || "Something went wrong");
     }
   };
   useEffect(() => {
     auth && getData();
-  }, [auth]);
+  }, [auth, error]);
 
   const handleLogout = async () => {
     setLoader(true);

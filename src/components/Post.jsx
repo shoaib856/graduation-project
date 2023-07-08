@@ -101,10 +101,10 @@ const Post = ({
         </div>
         <div className="flex gap-2 flex-col items-end md:items-start">
           <div className="flex gap-2">
-            {tags?.map((tag) => (
+            {tags?.map((tag,i) => (
               <button
                 onClick={() => setSearch(tag)}
-                key={tag}
+                key={i}
                 className="form-btn !text-xs px-1 py-0.5 disabled:bg-emerald-100 "
                 disabled={setSearch === null}
               >
@@ -159,11 +159,10 @@ const Post = ({
         {post?.content
           .trim()
           .split("\n")
-          .map((line) => (
-            <>
+          .map((line, i) => (
+            <span className="block" key={i}>
               {line}
-              <br />
-            </>
+            </span>
           ))}
       </p>
       <span className="absolute bottom-2 right-2 text-xs text-gray-400">

@@ -6,6 +6,7 @@ import Post from "./Post";
 import useAuthValue from "../hooks/useAuthValue";
 import axios from "../api/axios";
 import ShowComment from "./ShowComment";
+import WriteComment from "./WriteComment";
 
 const Comment = ({
   show,
@@ -113,7 +114,7 @@ const Comment = ({
   }, [auth, refetch]);
 
   return (
-    <Modal show={show} onHide={handleCancel} className="max-h-screen">
+    <Modal centered show={show} onHide={handleCancel} className="max-h-screen">
       <Modal.Header>
         <Modal.Title>Comments</Modal.Title>
         <XCircleFill className="close-btn" onClick={handleCancel} />
@@ -158,8 +159,10 @@ const Comment = ({
                   <div className="mb-1">
                     <div key={comment.comment.CommentId || comment.comment.id}>
                       <ShowComment
+                        setRefetch={setRefetch}
                         comment={comment}
                         setShowReply={setShowReply}
+                        refetch={refetch}
                       />
                       {comments.map((reply) =>
                         reply.comment.CommentId === comment.comment.id ? (
@@ -169,21 +172,21 @@ const Comment = ({
                               comment={reply}
                               className={"flex-1"}
                               setShowReply={setShowReply}
+                              setRefetch={setRefetch}
+                              refetch={refetch}
                             />
                           </div>
                         ) : null
                       )}
                     </div>
                     {showReply.id === comment.comment.id && showReply.show && (
-                      <div className="flex !flex-nowrap sm:!flex-wrap gap-1">
-                        <WriteComment
-                          formik={formikReply}
-                          handleCancel={() => {
-                            formikReply.resetForm();
-                            setShowReply(false);
-                          }}
-                        />
-                      </div>
+                      <WriteComment
+                        formik={formikReply}
+                        handleCancel={() => {
+                          formikReply.resetForm();
+                          setShowReply(false);
+                        }}
+                      />
                     )}
                   </div>
                 )
@@ -213,7 +216,7 @@ const Comment = ({
           )}
         </div>
       </Modal.Body>
-      <Modal.Footer className="flex !flex-nowrap sm:!flex-wrap">
+      <Modal.Footer>
         <WriteComment formik={formikComment} handleCancel={handleCancel} />
       </Modal.Footer>
     </Modal>
@@ -221,37 +224,3 @@ const Comment = ({
 };
 
 export default Comment;
-
-const WriteComment = ({ formik, handleCancel }) => {
-  return (
-    <>
-      <div className="w-full">
-        <textarea
-          name="content"
-          id="content"
-          rows={1}
-          {...formik.getFieldProps("content")}
-          placeholder="Write a comment..."
-          className="form-control form-field"
-        ></textarea>
-      </div>
-      <div className="flex justify-between gap-2 sm:w-full">
-        <button
-          type="button"
-          className="text-red-300 hover:text-red-500 "
-          onClick={handleCancel}
-        >
-          Close
-        </button>
-        <button
-          type="button"
-          className="form-btn"
-          disabled={formik.isSubmitting}
-          onClick={formik.handleSubmit}
-        >
-          <Send className="text-lg" />
-        </button>
-      </div>
-    </>
-  );
-};

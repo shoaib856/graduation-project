@@ -7,10 +7,10 @@ import AddItem from "../components/AddItem";
 
 const AddFeature = () => {
   const auth = useAuthValue();
-  const [tags, setTags] = useState([]);
   const [empty, setEmpty] = useState(false);
   const [refetch, setRefetch] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
   document.title = "Dashboard | Add Tag";
 
   const validationSchema = Yup.object({
@@ -25,28 +25,25 @@ const AddFeature = () => {
     tag: "",
     describtion: "",
   };
+  
   return (
     <>
       <div className="flex flex-col gap-2 text-emerald-600 w-full p-4 bg-white rounded-xl shadow-xl overflow-hidden">
         <AddItem
           auth={auth}
           initialValues={initialValues}
-          refetch={refetch}
           setRefetch={setRefetch}
-          setEmpty={setEmpty}
-          setItems={setTags}
           type="tag"
           validationSchema={validationSchema}
+          show={showAdd}
+          setShow={setShowAdd}
         />
         <ListItems
           refetch={refetch}
           setRefetch={setRefetch}
-          data={tags}
-          empty={empty}
-          loading={loading}
-          setLoading={setLoading}
           type="tag"
           auth={auth}
+          setShowAdd={setShowAdd}
         />
       </div>
     </>

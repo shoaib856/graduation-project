@@ -2,8 +2,18 @@ import { useEffect, useState } from "react";
 import useAuthValue from "../hooks/useAuthValue";
 import daysFromNow from "../utils/daysFromNow";
 import axios from "../api/axios";
+import WarningMessage from "./warningMessage";
+import { toastMsg } from "./message-toast";
+import { useFormik } from "formik";
+import WriteComment from "./WriteComment";
 
-const ShowComment = ({ comment, setShowReply, className }) => {
+const ShowComment = ({
+  comment,
+  setShowReply,
+  className,
+  setRefetch,
+  refetch,
+}) => {
   const auth = useAuthValue();
   const [liked, setLiked] = useState(comment.userLike);
   const [disliked, setDisliked] = useState(comment.userDisLike);
@@ -11,7 +21,10 @@ const ShowComment = ({ comment, setShowReply, className }) => {
   const [numDislikes, setNumDislikes] = useState(
     comment.comment.numberOfDisLikes
   );
+  const [showEdit, setShowEdit] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [abortController, setAbortController] = useState(null);
 
   const handleLike = async (id) => {
     setLoading(true);
@@ -53,6 +66,43 @@ const ShowComment = ({ comment, setShowReply, className }) => {
         toastMsg("error", err.response.data.message);
       });
   };
+  const formikEdit = useFormik({
+    initialValues: {
+      content: comment.comment.content,
+    },
+    onSubmit: (values) => {
+      const controller = new AbortController();
+      setAbortController(controller);
+      axios
+        .put("/comment/" + comment.comment.id, values, {
+          signal: controller.signal,
+          headers: {
+            "x-auth-token": auth.token,
+            "Content-Type": "application/json",
+          },
+        })
+        .then(() => {
+          toastMsg("success", "Comment updated");
+          setShowEdit(false);
+          setRefetch(true);
+          formikEdit.resetForm();
+        })
+        .catch((err) => {
+          if (err.name === "AbortError" || abortController?.signal.aborted)
+            return;
+          console.error(err);
+          toastMsg("error", err.response.data.message);
+        });
+    },
+  });
+
+  const handleCancel = () => {
+    setShowEdit(false);
+    abortController?.abort();
+  };
+  useEffect(() => {
+    formikEdit.setValues({ content: comment.comment.content });
+  }, [refetch]);
 
   return (
     <div
@@ -60,61 +110,101 @@ const ShowComment = ({ comment, setShowReply, className }) => {
         "bg-emerald-100 flex flex-col mb-1 rounded py-1 px-2 " + className
       }
     >
-      <div className="flex items-center justify-between">
-        <div>
-          <span className="font-semibold">
-            {[comment.user?.firstName, comment.user?.lastName].join(" ")}
-          </span>
-        </div>
-        <div>
-          <span className="text-xs text-gray-500">
-            {daysFromNow(comment.comment.createdAt)}
-          </span>
-        </div>
-      </div>
-      <div className="flex justify-between">
-        <p className="text-sm break-words break-all">
-          {comment.comment.content
-            .trim()
-            .split("\n")
-            .map((line) => (
-              <>
-                {line} <br />
-              </>
-            ))}
-        </p>
-        <div className="flex self-end gap-2">
-          <button
-            onClick={() => handleLike(comment.comment.id)}
-            className={`text-xs hover:text-blue-500 ${
-              liked ? "text-blue-500" : "text-gray-500"
-            }`}
-            disabled={loading}
-          >
-            {numLikes} likes
-          </button>
-          <button
-            onClick={() => handleDisLike(comment.comment.id)}
-            className={`text-xs hover:text-red-500 ${
-              disliked ? "text-red-500" : "text-gray-500"
-            }`}
-            disabled={loading}
-          >
-            {numDislikes} dislikes
-          </button>
-          <button
-            onClick={() => {
-              setShowReply({
-                show: true,
-                id: comment.comment.CommentId || comment.comment.id,
-              });
-            }}
-            className="text-xs text-gray-500 hover:text-green-500"
-          >
-            reply
-          </button>
-        </div>
-      </div>
+      {showEdit ? (
+        <WriteComment formik={formikEdit} handleCancel={handleCancel} />
+      ) : (
+        <>
+          <div className="flex md:flex-col md:items-start items-center justify-between">
+            <div>
+              <span className="font-semibold">
+                {[comment.user?.firstName, comment.user?.lastName].join(" ")}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-xs text-gray-500">
+                {daysFromNow(comment.comment.createdAt)}
+              </span>
+              {comment.comment.UserId === auth.id && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowEdit(true)}
+                    className="text-xs hover:text-blue-500"
+                  >
+                    Edit
+                  </button>
+                  <WarningMessage
+                    process={() => {
+                      axios
+                        .delete("/comment/" + comment.comment.id, {
+                          headers: { "x-auth-token": auth.token },
+                        })
+                        .then(() => {
+                          toastMsg("success", "Comment deleted");
+                          setRefetch(true);
+                          setShowDelete(false);
+                        })
+                        .catch((err) => {
+                          console.log(err);
+                        });
+                    }}
+                    show={showDelete}
+                    setShow={setShowDelete}
+                  />
+                  <button
+                    onClick={() => setShowDelete(true)}
+                    className="text-xs hover:text-red-500"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex justify-between flex-col">
+            <p className="text-sm break-words break-all">
+              {comment.comment.content
+                .trim()
+                .split("\n")
+                .map((line, i) => (
+                  <>
+                    <span key={i}>{line}</span> <br />
+                  </>
+                ))}
+            </p>
+            <div className="flex self-end gap-2">
+              <button
+                onClick={() => handleLike(comment.comment.id)}
+                className={`text-xs hover:text-blue-500 ${
+                  liked ? "text-blue-500" : "text-gray-500"
+                }`}
+                disabled={loading}
+              >
+                {numLikes} likes
+              </button>
+              <button
+                onClick={() => handleDisLike(comment.comment.id)}
+                className={`text-xs hover:text-red-500 ${
+                  disliked ? "text-red-500" : "text-gray-500"
+                }`}
+                disabled={loading}
+              >
+                {numDislikes} dislikes
+              </button>
+              <button
+                onClick={() => {
+                  setShowReply({
+                    show: true,
+                    id: comment.comment.CommentId || comment.comment.id,
+                  });
+                }}
+                className="text-xs text-gray-500 hover:text-green-500"
+              >
+                reply
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

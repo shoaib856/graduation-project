@@ -1,10 +1,10 @@
 import axios from "../api/axios";
-import { Button, ButtonGroup, Form, Modal } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { toastMsg } from "./message-toast";
 import InputField from "./inputField";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useAuth from "../hooks/useAuth.js";
 import setCookie from "../hooks/setCookie";
 import { BoxArrowInRight, XCircleFill } from "react-bootstrap-icons";
@@ -15,7 +15,6 @@ function Login({ show, onHide }) {
   const [auth, setAuth] = useAuth();
 
   const [abortController, setAbortController] = useState(null);
-  const navigate = useNavigate();
 
   const formik = useFormik({
     initialValues: {
@@ -73,7 +72,7 @@ function Login({ show, onHide }) {
     abortController?.abort();
     onHide();
   };
-  
+
   return (
     <Modal
       show={show}
