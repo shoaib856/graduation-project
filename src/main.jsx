@@ -8,6 +8,7 @@ import "./index.scss";
 import { RecoilRoot } from "recoil";
 import { DevSupport } from "@react-buddy/ide-toolbox";
 import { ComponentPreviews, useInitial } from "./dev/index.js";
+import PurchaseFailed from "./pages/PurchaseFailed";
 
 // layouts
 const RootLayout = lazy(() => import("./layout/rootLayout"));
@@ -51,6 +52,8 @@ const CommunityLayout = lazy(() => import("./layout/CommunityLayout"));
 const Community = lazy(() => import("./pages/Community"));
 
 // pricing
+const PricingLayout = lazy(() => import("./layout/PricingLayout"));
+const PurchaseSucceeded = lazy(() => import("./pages/PurchaseSucceeded"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 
 const router = createBrowserRouter([
@@ -82,7 +85,21 @@ const router = createBrowserRouter([
       },
       {
         path: "pricing",
-        element: <Pricing />,
+        element: <PricingLayout />,
+        children: [
+          {
+            index: true,
+            element: <Pricing />,
+          },
+          {
+            path: "success",
+            element: <PurchaseSucceeded />,
+          },
+          {
+            path: "failed",
+            element: <PurchaseFailed />,
+          },
+        ],
       },
       {
         path: "profile",
