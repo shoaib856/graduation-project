@@ -2,7 +2,7 @@ import { Send } from "react-bootstrap-icons";
 
 const WriteComment = ({ formik, handleCancel }) => {
   return (
-    <div className="flex !flex-nowrap sm:!flex-wrap gap-1">
+    <div className="flex-1 flex !flex-nowrap sm:!flex-wrap gap-1">
       <div className="w-full">
         <textarea
           name="content"

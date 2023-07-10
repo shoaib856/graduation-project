@@ -6,10 +6,10 @@ import { Container } from "react-bootstrap";
 const DashboardLayout = () => {
   return (
     <Container fluid className="!px-0 flex gap-3 md:flex-col md:items-center">
-      <aside className="!max-h-full max-w-xs md:max-w-lg w-full rounded">
+      <aside className="!max-h-full max-w-xs md:max-w-5xl w-full  rounded">
         <DashboardNavbar />
       </aside>
-      <div className="flex mx-auto flex-1 max-w-5xl md:max-w-lg w-full">
+      <div className="flex mx-auto flex-1 max-w-5xl md:px-4 w-full">
         <Suspense>
           <Outlet />
         </Suspense>

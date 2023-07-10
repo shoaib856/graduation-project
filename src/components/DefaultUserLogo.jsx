@@ -24,12 +24,14 @@ const colors = [
   "bg-zinc-400",
   "bg-neutral-400",
 ];
-const DefaultUserLogo = ({ dims, nameAbbreviation }) => {
+const DefaultUserLogo = ({ dims, nameAbbreviation, logo = false }) => {
   return (
     <div
       className={`${
         colors[Math.floor(Math.random() * colors.length)]
-      } ${dims} text-white rounded-full flex items-center justify-center text-4xl font-bold relative z-[1]`}
+      } ${dims} text-white rounded-full flex items-center justify-center ${
+        logo ? "text-sm" : "text-4xl"
+      } font-bold relative z-[1]`}
     >
       {nameAbbreviation}
     </div>

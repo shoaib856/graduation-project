@@ -1,17 +1,10 @@
-import { Container } from "react-bootstrap";
 import shoaib from "../assets/team/mahmoudShoaib.jpeg";
 import moIbrahim from "../assets/team/mohamedIbrahim.jpeg";
 import moGad from "../assets/team/mohamedGad.jpeg";
 import moTawfik from "../assets/team/mohamedTawfik.jpg";
 import moHussein from "../assets/team/mohamedHussein.jpg";
-import {
-  EnvelopeFill,
-  Facebook,
-  Linkedin,
-  Mailbox,
-  Mailbox2,
-  Twitter,
-} from "react-bootstrap-icons";
+
+import { EnvelopeFill, Linkedin } from "react-bootstrap-icons";
 
 function About() {
   const people = [
@@ -27,6 +20,7 @@ function About() {
       role: "Machine Learning Engineer",
       imageUrl: moIbrahim,
       linkedin: "https://www.linkedin.com/in/mohammed-ibrahim-819468216/",
+      gmail: "mohamed3ibrahim20@gmai.com",
     },
     {
       name: "Mohamed Gad",

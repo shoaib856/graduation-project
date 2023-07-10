@@ -97,6 +97,43 @@ html {
   @apply md:px-2 md:text-xs text-white px-4 py-1 rounded-md bg-emerald-400 border-none shadow-none active:bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-200 disabled:text-emerald-900 font-bold text-lg;
 }
 
-.dialog {
-  @apply backdrop-blur;
+.animated {
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fadeIn {
+  animation: fadeIn 500ms ease-in-out alternate;
+  -webkit-animation: fadeIn 500ms ease-in-out alternate;
+}
+
+.fadeOut {
+  animation: fadeOut 500ms ease-in-out alternate;
+  -webkit-animation: fadeOut 500ms ease-in-out alternate;
+  display: none;
+}
+
+.shadowless-switch {
+  input[type="checkbox"] {
+    @apply border-amber-300 shadow-none checked:bg-emerald-400 checked:border-transparent checked:ring-transparent;
+  }
 }

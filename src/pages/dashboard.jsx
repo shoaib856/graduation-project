@@ -3,40 +3,13 @@ import axios from "../api/axios";
 import useAuthValue from "../hooks/useAuthValue";
 import { Badge, Card, Dropdown, Placeholder } from "react-bootstrap";
 import { PersonCircle, ThreeDotsVertical } from "react-bootstrap-icons";
-import warningMessage from "../components/warningMessage";
-import { useUserImage } from "../context/userImg";
+import WarningMessage from "../components/warningMessage";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import DefaultUserLogo from "../components/DefaultUserLogo";
-
 import refreshIcon from "../assets/icons/refresh.svg";
-
 import daysFromNow from "../utils/daysFromNow";
-
-const colors = [
-  "bg-red-400",
-  "bg-orange-400",
-  "bg-emerald-400",
-  "bg-amber-400",
-  "bg-sky-400",
-  "bg-indigo-400",
-  "bg-purple-400",
-  "bg-pink-400",
-  "bg-green-400",
-  "bg-blue-400",
-  "bg-teal-400",
-  "bg-rose-400",
-  "bg-cyan-400",
-  "bg-lime-400",
-  "bg-yellow-400",
-  "bg-violet-400",
-  "bg-fuchsia-400",
-  "bg-slate-400",
-  "bg-gray-400",
-  "bg-stone-400",
-  "bg-zinc-400",
-  "bg-neutral-400",
-];
+import fromBase64ToImg from "../utils/fromBase64ToImg";
 
 function Dashboard() {
   document.title = "FarmVision | Dashboard";
@@ -46,7 +19,9 @@ function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
   const [error, setError] = useState(false);
-  const userImg = useUserImage();
+  const [show, setShow] = useState(false);
+  const [abortController, setAbortController] = useState(null);
+
   const getUsers = async () => {
     setLoading(true);
     await axios
@@ -73,9 +48,13 @@ function Dashboard() {
   };
 
   const handleDelete = async (id) => {
+    const controller = new AbortController();
+    setAbortController(controller);
+
     setLoading(true);
     await axios
       .delete(`/user/${id}`, {
+        signal: controller.signal,
         headers: {
           "x-auth-token": auth?.token,
         },
@@ -88,12 +67,17 @@ function Dashboard() {
       })
       .catch((err) => {
         setLoading(false);
+        if (err.name === "AbortError" || abortController.aborted?.signal)
+          return;
         setError(true);
         setMsg(
           err.response.data.message ||
             "Something went wrong, please try again later"
         );
       });
+  };
+  const handleCancel = () => {
+    abortController?.abort();
   };
   const handleUpdateAdmin = async (id, role) => {
     Swal.fire({
@@ -216,13 +200,24 @@ function Dashboard() {
                 >
                   <Card.Body className="flex items-center bg-slate-50 rounded !rounded-ss-3xl !rounded-ee-3xl justify-between gap-2">
                     <div id="user-logo">
-                      <DefaultUserLogo
-                        dims={"w-16 h-16"}
-                        nameAbbreviation={
-                          userData.user.firstName[0].toUpperCase() +
-                          userData.user.lastName[0].toUpperCase()
-                        }
-                      />
+                      {userData.user?.image == "null" ||
+                      userData.user?.image == undefined ? (
+                        <DefaultUserLogo
+                          dims={"w-16 h-16"}
+                          nameAbbreviation={
+                            userData.user.firstName[0]?.toUpperCase() +
+                              userData.user.lastName[0]?.toUpperCase() || "UK"
+                          }
+                        />
+                      ) : (
+                        <img
+                          src={URL.createObjectURL(
+                            fromBase64ToImg(userData.user.image)
+                          )}
+                          alt="User"
+                          className="rounded-full w-16 h-16"
+                        />
+                      )}
                     </div>
                     <div id="user-data" className="flex flex-col flex-1 gap-1">
                       <Card.Title className="font-bold text-xl flex justify-between">
@@ -236,21 +231,33 @@ function Dashboard() {
                             <ThreeDotsVertical />
                           </Dropdown.Toggle>
                           <Dropdown.Menu className="p-2">
+                            {show && (
+                              <WarningMessage
+                                show={show}
+                                setShow={setShow}
+                                process={handleDelete}
+                                param={userData.user.id}
+                                loading={loading}
+                                handleCancel={handleCancel}
+                              />
+                            )}
                             <Dropdown.Item
                               disabled={
                                 userData.user.id === auth.id ||
-                                userData.user.admin
+                                (auth.role === "admin" &&
+                                  userData.user.role === "admin") ||
+                                userData.user.role === "superAdmin"
                               }
                               className="hover:text-white text-center hover:bg-red-600 active:bg-red-600"
-                              onClick={() =>
-                                warningMessage(handleDelete, userData.user.id)
-                              }
+                              onClick={() => setShow(true)}
                             >
                               Delete
                             </Dropdown.Item>
                             <Dropdown.Item
                               disabled={
                                 userData.user.id === auth.id ||
+                                (auth.role === "admin" &&
+                                  userData.user.role === "admin") ||
                                 userData.user.role === "superAdmin"
                               }
                               className="hover:text-white text-center hover:bg-yellow-500 active:bg-yellow-500"
@@ -270,7 +277,7 @@ function Dashboard() {
                         {userData.user.email}
                       </Card.Text>
                       <Card.Text className="text-sm text-gray-500">
-                        Role: {userData.user.role}
+                        ({userData.user.role})
                       </Card.Text>
                       <Card.Text className="text-xs text-gray-400 absolute bottom-2 right-3">
                         Joined from:
@@ -281,12 +288,29 @@ function Dashboard() {
                         {daysFromNow(userData.user.updatedAt)}
                       </Card.Text>
 
-                      <Link
-                        to={`user-details/${userData.user.id}/`}
+                      <button
                         className="form-btn mb-3"
+                        disabled={
+                          ((auth.role === "admin" &&
+                            userData.user.role === "admin") ||
+                            userData.user.role === "superAdmin") &&
+                          auth.id !== userData.user.id
+                        }
                       >
-                        Details
-                      </Link>
+                        {((auth.role === "admin" &&
+                          userData.user.role === "admin") ||
+                          userData.user.role === "superAdmin") &&
+                        auth.id !== userData.user.id ? (
+                          "Disabled"
+                        ) : (
+                          <Link
+                            className="block"
+                            to={`user-details/${userData.user.id}/`}
+                          >
+                            Details
+                          </Link>
+                        )}
+                      </button>
                     </div>
                   </Card.Body>
                 </Card>

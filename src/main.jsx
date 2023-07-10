@@ -1,10 +1,6 @@
-import React, { lazy, startTransition } from "react";
+import React, { lazy } from "react";
 import ReactDOM from "react-dom/client";
-import {
-  createBrowserRouter,
-  redirect,
-  RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import "./index.scss";
@@ -37,11 +33,11 @@ const AddFeature = lazy(() => import("./pages/AddFeature"));
 const FeatureDetails = lazy(() => import("./pages/FeatureDetails"));
 const AddTag = lazy(() => import("./pages/AddTag"));
 const TagDetails = lazy(() => import("./pages/TagDetails"));
+const Reports = lazy(() => import("./pages/Reports"));
 
 // profile
 const Profile = lazy(() => import("./pages/profile"));
 const EditPwd = lazy(() => import("./pages/EditPwd"));
-const UpdateUserImg = lazy(() => import("./pages/updateUserImg"));
 const Devices = lazy(() => import("./pages/Devices"));
 
 // not found
@@ -53,6 +49,9 @@ const PlantDiseaseApp = lazy(() => import("./pages/plant-disease-app"));
 // community
 const CommunityLayout = lazy(() => import("./layout/CommunityLayout"));
 const Community = lazy(() => import("./pages/Community"));
+
+// pricing
+const Pricing = lazy(() => import("./pages/Pricing"));
 
 const router = createBrowserRouter([
   {
@@ -82,6 +81,10 @@ const router = createBrowserRouter([
         ],
       },
       {
+        path: "pricing",
+        element: <Pricing />,
+      },
+      {
         path: "profile",
         element: <ProfileLayout />,
         children: [
@@ -92,10 +95,6 @@ const router = createBrowserRouter([
           {
             path: "edit-pwd",
             element: <EditPwd />,
-          },
-          {
-            path: "update-user-img",
-            element: <UpdateUserImg />,
           },
           {
             path: "devices",
@@ -122,10 +121,6 @@ const router = createBrowserRouter([
               {
                 path: "edit-pwd",
                 element: <EditPwd />,
-              },
-              {
-                path: "update-user-img",
-                element: <UpdateUserImg />,
               },
             ],
           },
@@ -160,6 +155,10 @@ const router = createBrowserRouter([
                 element: <TagDetails />,
               },
             ],
+          },
+          {
+            path: "reports",
+            element: <Reports />,
           },
         ],
       },

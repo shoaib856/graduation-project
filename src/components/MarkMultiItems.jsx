@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, ListGroup } from "react-bootstrap";
+import { Badge, Form, ListGroup } from "react-bootstrap";
 import ShowOnHover from "./showOnHover";
 
 const MarkMultiItems = ({
@@ -28,8 +28,8 @@ const MarkMultiItems = ({
           </Form.Check.Label>
 
           {itemPrice && (
-            <Badge bg="secondary" className="p-1">
-              {itemPrice}$
+            <Badge className="p-1 !bg-emerald-300 flex justify-center items-center">
+              ${itemPrice}
             </Badge>
           )}
         </Form.Check>

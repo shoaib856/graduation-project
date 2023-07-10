@@ -7,6 +7,7 @@ import axios from "../api/axios";
 import useAuthValue from "../hooks/useAuthValue";
 
 function Contact() {
+  document.title = "Contact Us";
   const auth = useAuthValue();
   const [successMsg, setSuccessMsg] = useState(null);
   const formik = useFormik({

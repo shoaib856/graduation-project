@@ -1,5 +1,5 @@
-import {  Navbar } from "react-bootstrap";
-import {  ArrowReturnRight } from "react-bootstrap-icons";
+import { Navbar } from "react-bootstrap";
+import { ArrowReturnRight } from "react-bootstrap-icons";
 import { Link, NavLink, useLocation, useParams } from "react-router-dom";
 
 const DashboardNavbar = () => {
@@ -50,15 +50,6 @@ const DashboardNavbar = () => {
                     Edit Password
                   </NavLink>
                 </div>
-                <div className="flex gap-1">
-                  <ArrowReturnRight className="self-center text-4xl" />
-                  <NavLink
-                    to={`./user-details/${params.id}/update-user-img/`}
-                    className="list-group-item border-none w-full"
-                  >
-                    Update User Image
-                  </NavLink>
-                </div>
               </div>
             )}
           </div>
@@ -70,6 +61,9 @@ const DashboardNavbar = () => {
           </NavLink>
           <NavLink to={"./tags/"} className="list-group-item border-none ">
             Tags
+          </NavLink>
+          <NavLink to={"./reports/"} className="list-group-item border-none ">
+            Reports
           </NavLink>
         </nav>
       </Navbar.Collapse>

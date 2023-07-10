@@ -7,9 +7,7 @@ import AddItem from "../components/AddItem";
 
 const AddFeature = () => {
   const auth = useAuthValue();
-  const [empty, setEmpty] = useState(false);
   const [refetch, setRefetch] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   document.title = "Dashboard | Add Tag";
 

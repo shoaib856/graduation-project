@@ -3,8 +3,11 @@ import { useState } from "react";
 import { Form, Container, Button } from "react-bootstrap";
 import { PersonCircle } from "react-bootstrap-icons";
 import axios from "../api/axios";
+import useAuthValue from "../hooks/useAuthValue";
+import { toastMsg } from "../components/message-toast";
 
 const UpdateUserImg = () => {
+  const auth = useAuthValue();
   const [image, setImage] = useState();
   const formik = useFormik({
     initialValues: {
@@ -13,10 +16,10 @@ const UpdateUserImg = () => {
     onSubmit: async (values) => {
       try {
         await axios
-          .post("/logo", values, {
+          .put("/user/" + auth?.id, values, {
             headers: {
               "Content-Type": "application/json",
-              "x-auth-token": auth.token,
+              "x-auth-token": auth?.token,
             },
           })
           .then((res) => {
@@ -41,9 +44,8 @@ const UpdateUserImg = () => {
       >
         <Container className="cover-img flex justify-center py-3" fluid>
           {image ? (
-            <Image
-              roundedCircle
-              className="max-w-[150px] w-full py-3 relative z-[1]"
+            <img
+              className="max-w-[150px] rounded-full w-full py-3 relative z-[1]"
               src={URL.createObjectURL(image)}
               alt="profile-image"
             />

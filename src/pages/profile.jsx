@@ -1,29 +1,21 @@
-import {
-  Alert,
-  Button,
-  ButtonGroup,
-  Card,
-  Col,
-  Container,
-  Form,
-  Image,
-  Placeholder,
-  Row,
-} from "react-bootstrap";
+import { Button, ButtonGroup, Card, Placeholder } from "react-bootstrap";
 import axios from "../api/axios";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import { toastMsg } from "../components/message-toast";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import removeCookie from "../hooks/removeCookie";
-import { useUserImage } from "../context/userImg";
-import { PencilSquare, PersonCircle, XCircleFill } from "react-bootstrap-icons";
+import { PersonCircle } from "react-bootstrap-icons";
 import { useFormik } from "formik";
-import { useImmer } from "use-immer";
 import * as Yup from "yup";
-import DefaultUserLogo from "../components/DefaultUserLogo";
 import CustomizedAlert from "../components/CustomizedAlert";
-import { handleUserData, useUserData } from "../context/userData";
+import { handleUserData } from "../context/userData";
+import ShowImage from "../components/ShowImage";
+import fromBase64ToImg from "../utils/fromBase64ToImg";
+import EditableField from "../components/editableField";
+import CustomRow from "../components/CustomRow";
+import handleLogout from "../utils/handleLogout";
+import getData from "../utils/getData";
 
 const validationSchema = Yup.object({
   userName: Yup.string()
@@ -51,6 +43,7 @@ const validationSchema = Yup.object({
   usageTarget: Yup.string().required("Required"),
 });
 const initialValues = {
+  image: "",
   firstName: "",
   lastName: "",
   userName: "",
@@ -76,55 +69,33 @@ function Profile() {
   const [user, setUser] = useState(null);
   const [refetch, setRefetch] = useState(false);
   const [error, setError] = useState(false);
-  const userImg = useUserImage();
+  const [image, setImage] = useState(null);
+
   const navigate = useNavigate();
+
   const location = useLocation();
+
   const profileLocation =
     location.pathname.split("/").slice(-2)[0] === "profile";
+
   document.title = profileLocation
     ? "FarmVision | Profile"
     : "Dashboard | User Details";
   const params = useParams();
-  const [fieldsEnabled, setFieldsEnabled] = useImmer({
-    firstName: false,
-    lastName: false,
-    userName: false,
-    email: false,
-    phoneNumber: false,
-    country: false,
-    city: false,
-    state: false,
-    streetName: false,
-    postCode: false,
-    role: false,
-    workField: false,
-    usageTarget: false,
-    features: false,
-  });
-  const firstNameRef = useRef(null);
-  const lastNameRef = useRef(null);
-  const userNameRef = useRef(null);
-  const emailRef = useRef(null);
-  const phoneNumberRef = useRef(null);
-  const countryRef = useRef(null);
-  const cityRef = useRef(null);
-  const stateRef = useRef(null);
-  const streetNameRef = useRef(null);
-  const postCodeRef = useRef(null);
-  const roleRef = useRef(null);
-  const workFieldRef = useRef(null);
-  const usageTargetRef = useRef(null);
 
   const formik = useFormik({
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
-      const editedFields = Object.keys(values).reduce((acc, current) => {
-        if (values[current] !== user[current]) {
-          acc[current] = values[current];
-        }
-        return acc;
-      }, {});
+      const editedFields = Object.keys(values).reduce(
+        (acc, current) => {
+          if (values[current] !== user[current]) {
+            acc[current] = values[current];
+          }
+          return acc;
+        },
+        { image }
+      );
       if (Object.keys(editedFields).length === 0) {
         toastMsg("info", "No changes were made");
         return;
@@ -133,123 +104,77 @@ function Profile() {
         .put(`/user/${profileLocation ? auth.id : params.id}`, editedFields, {
           headers: {
             "x-auth-token": auth.token,
-            "Content-Type": "application/json",
+            "Content-Type": "multipart/form-data",
           },
         })
         .then((res) => {
-          // toastMsg("success", res.data.message);
+          toastMsg("success", res.data.message);
           setRefetch(true);
-          handleDisableAll();
         })
         .catch((err) => {
-          toastMsg("error", err.response.data.message);
+          console.error(err);
         });
     },
   });
 
-  const getData = async () => {
+  const getLocalData = async () => {
     try {
-      if (userData && profileLocation) {
-        formik.setValues(userData);
-        setUser(userData);
+      if (profileLocation) {
+        if (userData && !refetch) {
+          formik.setValues(userData);
+          setImage(fromBase64ToImg(userData.image));
+          setUser(userData);
+        } else if (refetch) {
+          getData(auth, setError, setUserData, setRefetch);
+        }
       } else {
         setLoading(true);
         await axios
-          .get(`user/${profileLocation ? auth?.id : params.id}`, {
+          .get(`user/${params.id}`, {
             headers: { "x-auth-token": auth?.token },
           })
           .then((res) => {
             formik.setValues(res.data.data.user);
             setUser(res.data.data.user);
-            setUserData(res.data.data.user);
+            setImage(fromBase64ToImg(res.data.data.user.image));
             setLoading(false);
             setRefetch(false);
+            auth.id == params.id && refetch
+              ? getData(auth, setError, setUserData, setRefetch)
+              : null;
           })
-          .catch(() => {
+          .catch((err) => {
+            console.error(err);
             setError(true);
             setRefetch(false);
             setLoading(false);
           });
       }
     } catch (err) {
+      console.error(err);
       setLoading(false);
       toastMsg("error", "You Must Login or Register first");
       navigate("../");
     }
   };
-  const handleEnable = (field) => {
-    field.disabled = false;
-    field.focus();
-    setFieldsEnabled((draft) => {
-      draft[field.name] = true;
-    });
-  };
-  const handleDisable = (field) => {
-    field.disabled = true;
-    setFieldsEnabled((draft) => {
-      draft[field.name] = false;
-    });
-    formik.setFieldValue(field.name, user[field.name]);
-  };
-  const handleDisableAll = () => {
-    setFieldsEnabled((draft) => {
-      Object.keys(draft).forEach((field) => {
-        draft[field] = false;
-      });
-    });
-
-    handleDisable(firstNameRef.current);
-    handleDisable(lastNameRef.current);
-    handleDisable(userNameRef.current);
-    handleDisable(emailRef.current);
-    handleDisable(phoneNumberRef.current);
-    handleDisable(countryRef.current);
-    handleDisable(cityRef.current);
-    handleDisable(stateRef.current);
-    handleDisable(streetNameRef.current);
-    handleDisable(postCodeRef.current);
-    handleDisable(roleRef.current);
-    handleDisable(workFieldRef.current);
-    handleDisable(usageTargetRef.current);
-  };
-  const handleLogout = async () => {
-    setLoading(true);
-    await axios
-      .post(
-        "/logout",
-        {},
-        {
-          headers: {
-            "x-auth-token": auth.token,
-          },
-        }
-      )
-      .then((res) => {
-        navigate({ pathname: "/" });
-        toastMsg("success", res.data.message);
-        setLoading(false);
-        setAuth(null);
-        removeCookie("userIn");
-      })
-      .catch((err) => {
-        setLoading(false);
-        toastMsg("error", err.response.data.message);
-      });
-  };
 
   useEffect(() => {
-    getData();
-  }, [auth, refetch]);
+    getLocalData();
+  }, [auth, refetch, userData]);
 
   return (
     <div className="w-full py-3 px-1 flex flex-col gap-4 items-center bg-white !rounded-xl shadow-xl">
-      <h1 className="text-4xl w-full text-emerald-600 pl-3">Profile</h1>
+      <h1 className="text-4xl w-full pl-3 border-b-2 border-emerald-600">
+        Profile
+      </h1>
       {error ? (
-        <CustomizedAlert
-          variant="danger"
-          msg={"Something went wrong"}
-          setRefetch={setRefetch}
-        />
+        <div className="w-full">
+          <CustomizedAlert
+            variant="danger"
+            msg={"Something went wrong"}
+            setRefetch={setRefetch}
+          />
+        </div>
       ) : !user || refetch ? (
         <Card className="w-full">
           <Card.Header className="flex justify-center w-full">
@@ -269,509 +194,137 @@ function Profile() {
         </Card>
       ) : (
         <>
-          <Container className="cover-img flex justify-center py-3" fluid>
-            {userImg ? (
-              <Image
-                roundedCircle
-                className="max-w-[150px] w-full h-[150px] relative z-[1]"
-                src={URL.createObjectURL(userImg)}
-                alt="profile-image"
+          <div className="flex flex-col gap-2 !w-full px-2">
+            <div className="flex md:flex-col items-center gap-2 justify-center">
+              <ShowImage
+                formik={formik}
+                image={image}
+                setImage={setImage}
+                width40
+                base64
               />
-            ) : (
-              <DefaultUserLogo
-                dims={"w-32 h-32"}
-                nameAbbreviation={
-                  user.firstName[0]?.toUpperCase() +
-                  user.lastName[0]?.toUpperCase()
-                }
-              />
-            )}
-          </Container>
-          <div className="flex flex-col gap-4 !w-full px-2">
-            <h1 className="text-6xl md:text-4xl text-center">
-              {user?.firstName + " " + user?.lastName}
-            </h1>
+              <div className="md:text-center">
+                <h1 className="text-6xl md:text-4xl">
+                  {user?.firstName + " " + user?.lastName}
+                </h1>
+                <span className="text-lg ">({user?.role})</span>
+              </div>
+            </div>
             <form
               onSubmit={formik.handleSubmit}
-              className="flex flex-col gap-1 text-lg text-emerald-600 p-1 bg-white rounded-xl shadow-xl font-semibold"
+              className="flex flex-col gap-1 text-emerald-600 p-1"
             >
-              <Row className="flex gap-1 px-[12px]">
-                <Form.FloatingLabel
+              <CustomRow>
+                <EditableField
+                  id={"userName"}
+                  label={"Username"}
+                  formik={formik}
+                  beforeEditData={user.userName}
+                />
+                <EditableField
+                  id={"email"}
+                  label={"Email"}
+                  formik={formik}
+                  beforeEditData={user.email}
+                />
+              </CustomRow>
+              <CustomRow>
+                <EditableField
+                  id={"firstName"}
                   label={"First Name"}
-                  as={Col}
-                  className="p-0"
-                >
-                  <Form.Control
-                    {...formik.getFieldProps("firstName")}
-                    autoComplete="nope"
-                    ref={firstNameRef}
-                    name="firstName"
-                    type="text"
-                    placeholder="First Name"
-                    className="form-field disabled:bg-white !pr-8"
-                    required
-                    disabled
-                  />
-                  {!fieldsEnabled.firstName ? (
-                    <PencilSquare
-                      onClick={() => {
-                        handleEnable(firstNameRef.current);
-                      }}
-                      className={`text-emerald-400 hover:text-emerald-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                    />
-                  ) : (
-                    <XCircleFill
-                      onClick={() => {
-                        handleDisable(firstNameRef.current);
-                      }}
-                      className={`text-red-400 hover:text-red-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                    />
-                  )}
-                  {formik.touched.firstName && formik.errors.firstName ? (
-                    <Alert
-                      variant="danger"
-                      className="mt-1 px-1 py-2 border-l-8 !text-sm"
-                    >
-                      {formik.errors.firstName}
-                    </Alert>
-                  ) : null}
-                </Form.FloatingLabel>
-                <Form.FloatingLabel
+                  formik={formik}
+                  beforeEditData={user.firstName}
+                />
+                <EditableField
+                  id={"lastName"}
                   label={"Last Name"}
-                  as={Col}
-                  className="p-0"
-                >
-                  <Form.Control
-                    {...formik.getFieldProps("lastName")}
-                    name="lastName"
-                    ref={lastNameRef}
-                    placeholder="Last Name"
-                    autoComplete="nope"
-                    type="text"
-                    className="form-field disabled:bg-white !pr-8"
-                    required
-                    disabled
-                  />
-                  {!fieldsEnabled.lastName ? (
-                    <PencilSquare
-                      onClick={() => {
-                        handleEnable(lastNameRef.current);
-                      }}
-                      className={`text-emerald-400 hover:text-emerald-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                    />
-                  ) : (
-                    <XCircleFill
-                      onClick={() => {
-                        handleDisable(lastNameRef.current);
-                      }}
-                      className={`text-red-400 hover:text-red-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                    />
-                  )}
-                  {formik.touched.lastName && formik.errors.lastName ? (
-                    <Alert
-                      variant="danger"
-                      className="mt-1 px-1 py-2 border-l-8 !text-sm"
-                    >
-                      {formik.errors.lastName}
-                    </Alert>
-                  ) : null}
-                </Form.FloatingLabel>
-              </Row>
-              <Form.FloatingLabel label={"Username"} className="p-0">
-                <Form.Control
-                  {...formik.getFieldProps("userName")}
-                  autoComplete="nope"
-                  name="userName"
-                  ref={userNameRef}
-                  type="text"
-                  placeholder="Username"
-                  className="form-field disabled:bg-white !pr-8"
-                  required
-                  disabled
+                  formik={formik}
+                  beforeEditData={user.lastName}
                 />
-                {!fieldsEnabled.userName ? (
-                  <PencilSquare
-                    onClick={() => {
-                      handleEnable(userNameRef.current);
-                    }}
-                    className={`text-emerald-400 hover:text-emerald-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                  />
-                ) : (
-                  <XCircleFill
-                    onClick={() => {
-                      handleDisable(userNameRef.current);
-                    }}
-                    className={`text-red-400 hover:text-red-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                  />
-                )}
-                {formik.touched.userName && formik.errors.userName ? (
-                  <Alert
-                    variant="danger"
-                    className="mt-1 px-1 py-2 border-l-8 !text-sm"
-                  >
-                    {formik.errors.userName}
-                  </Alert>
-                ) : null}
-              </Form.FloatingLabel>
-              <Form.FloatingLabel label={"Email"} className="p-0">
-                <Form.Control
-                  {...formik.getFieldProps("email")}
-                  autoComplete="nope"
-                  name="email"
-                  ref={emailRef}
-                  type="email"
-                  placeholder="Email"
-                  className="form-field disabled:bg-white !pr-8"
-                  required
-                  disabled
+              </CustomRow>
+
+              <CustomRow>
+                <EditableField
+                  id={"phoneNumber"}
+                  label={"Phone Number"}
+                  formik={formik}
+                  beforeEditData={user.phoneNumber}
                 />
-                {!fieldsEnabled.email ? (
-                  <PencilSquare
-                    onClick={() => {
-                      handleEnable(emailRef.current);
-                    }}
-                    className={`text-emerald-400 hover:text-emerald-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                  />
-                ) : (
-                  <XCircleFill
-                    onClick={() => {
-                      handleDisable(emailRef.current);
-                    }}
-                    className={`text-red-400 hover:text-red-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                  />
-                )}
-                {formik.touched.email && formik.errors.email ? (
-                  <Alert
-                    variant="danger"
-                    className="mt-1 px-1 py-2 border-l-8 !text-sm"
-                  >
-                    {formik.errors.email}
-                  </Alert>
-                ) : null}
-              </Form.FloatingLabel>
-              <Form.FloatingLabel label={"Phone Number"} className="p-0">
-                <Form.Control
-                  {...formik.getFieldProps("phoneNumber")}
-                  autoComplete="nope"
-                  name="phoneNumber"
-                  ref={phoneNumberRef}
-                  type="tel"
-                  placeholder="Phone Number"
-                  className="form-field disabled:bg-white !pr-8"
-                  required
-                  disabled
+                <EditableField
+                  id={"postCode"}
+                  label={"Post Code"}
+                  formik={formik}
+                  beforeEditData={user.postCode}
                 />
-                {!fieldsEnabled.phoneNumber ? (
-                  <PencilSquare
-                    onClick={() => {
-                      handleEnable(phoneNumberRef.current);
-                    }}
-                    className={`text-emerald-400 hover:text-emerald-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                  />
-                ) : (
-                  <XCircleFill
-                    onClick={() => {
-                      handleDisable(phoneNumberRef.current);
-                    }}
-                    className={`text-red-400 hover:text-red-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                  />
-                )}
-                {formik.touched.phoneNumber && formik.errors.phoneNumber ? (
-                  <Alert
-                    variant="danger"
-                    className="mt-1 px-1 py-2 border-l-8 !text-sm"
-                  >
-                    {formik.errors.phoneNumber}
-                  </Alert>
-                ) : null}
-              </Form.FloatingLabel>
-              <Row className="flex gap-1 px-[12px]">
-                <Col className="p-0">
-                  <Form.FloatingLabel label={"Country"}>
-                    <Form.Control
-                      {...formik.getFieldProps("country")}
-                      autoComplete="nope"
-                      name="country"
-                      ref={countryRef}
-                      type="text"
-                      placeholder="Country"
-                      className="form-field disabled:bg-white !pr-8"
-                      required
-                      disabled
-                    />
-                    {!fieldsEnabled.country ? (
-                      <PencilSquare
-                        onClick={() => {
-                          handleEnable(countryRef.current);
-                        }}
-                        className={`text-emerald-400 hover:text-emerald-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                      />
-                    ) : (
-                      <XCircleFill
-                        onClick={() => {
-                          handleDisable(countryRef.current);
-                        }}
-                        className={`text-red-400 hover:text-red-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                      />
-                    )}
-                    {formik.touched.country && formik.errors.country ? (
-                      <Alert
-                        variant="danger"
-                        className="mt-1 px-1 py-2 border-l-8 !text-sm"
-                      >
-                        {formik.errors.country}
-                      </Alert>
-                    ) : null}
-                  </Form.FloatingLabel>
-                </Col>
-                <Col className="p-0">
-                  <Form.FloatingLabel label={"City"}>
-                    <Form.Control
-                      {...formik.getFieldProps("city")}
-                      autoComplete="nope"
-                      name="city"
-                      ref={cityRef}
-                      type="text"
-                      placeholder="City"
-                      className="form-field disabled:bg-white !pr-8"
-                      required
-                      disabled
-                    />
-                    {!fieldsEnabled.city ? (
-                      <PencilSquare
-                        onClick={() => {
-                          handleEnable(cityRef.current);
-                        }}
-                        className={`text-emerald-400 hover:text-emerald-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                      />
-                    ) : (
-                      <XCircleFill
-                        onClick={() => {
-                          handleDisable(cityRef.current);
-                        }}
-                        className={`text-red-400 hover:text-red-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                      />
-                    )}
-                    {formik.touched.city && formik.errors.city ? (
-                      <Alert
-                        variant="danger"
-                        className="mt-1 px-1 py-2 border-l-8 !text-sm"
-                      >
-                        {formik.errors.city}
-                      </Alert>
-                    ) : null}
-                  </Form.FloatingLabel>
-                </Col>
-              </Row>
-              <Row className="flex gap-1 px-[12px]">
-                <Col className="p-0">
-                  <Form.FloatingLabel label={"State"}>
-                    <Form.Control
-                      {...formik.getFieldProps("state")}
-                      autoComplete="nope"
-                      name="state"
-                      ref={stateRef}
-                      type="text"
-                      placeholder="State"
-                      className="form-field disabled:bg-white !pr-8"
-                      required
-                      disabled
-                    />
-                    {!fieldsEnabled.state ? (
-                      <PencilSquare
-                        onClick={() => {
-                          handleEnable(stateRef.current);
-                        }}
-                        className={`text-emerald-400 hover:text-emerald-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                      />
-                    ) : (
-                      <XCircleFill
-                        onClick={() => {
-                          handleDisable(stateRef.current);
-                        }}
-                        className={`text-red-400 hover:text-red-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                      />
-                    )}
-                    {formik.touched.state && formik.errors.state ? (
-                      <Alert
-                        variant="danger"
-                        className="mt-1 px-1 py-2 border-l-8 !text-sm"
-                      >
-                        {formik.errors.state}
-                      </Alert>
-                    ) : null}
-                  </Form.FloatingLabel>
-                </Col>
-                <Col className="p-0">
-                  <Form.FloatingLabel label={"Street Name"} className="p-0">
-                    <Form.Control
-                      {...formik.getFieldProps("streetName")}
-                      autoComplete="nope"
-                      name="streetName"
-                      ref={streetNameRef}
-                      type="text"
-                      placeholder="Street Name"
-                      className="form-field disabled:bg-white !pr-8"
-                      required
-                      disabled
-                    />
-                    {!fieldsEnabled.streetName ? (
-                      <PencilSquare
-                        onClick={() => {
-                          handleEnable(streetNameRef.current);
-                        }}
-                        className={`text-emerald-400 hover:text-emerald-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                      />
-                    ) : (
-                      <XCircleFill
-                        onClick={() => {
-                          handleDisable(streetNameRef.current);
-                        }}
-                        className={`text-red-400 hover:text-red-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                      />
-                    )}
-                    {formik.touched.streetName && formik.errors.streetName ? (
-                      <Alert
-                        variant="danger"
-                        className="mt-1 px-1 py-2 border-l-8 !text-sm"
-                      >
-                        {formik.errors.streetName}
-                      </Alert>
-                    ) : null}
-                  </Form.FloatingLabel>
-                </Col>
-              </Row>
-              <Form.FloatingLabel label="Post Code" className="p-0">
-                <Form.Control
-                  {...formik.getFieldProps("postCode")}
-                  autoComplete="nope"
-                  name="postCode"
-                  ref={postCodeRef}
-                  type="text"
-                  placeholder="Post Code"
-                  className="form-field disabled:bg-white !pr-8"
-                  required
-                  disabled
+              </CustomRow>
+
+              <CustomRow>
+                <EditableField
+                  id={"country"}
+                  label={"Country"}
+                  formik={formik}
+                  beforeEditData={user.country}
                 />
-                {!fieldsEnabled.postCode ? (
-                  <PencilSquare
-                    onClick={() => {
-                      handleEnable(postCodeRef.current);
-                    }}
-                    className={`text-emerald-400 hover:text-emerald-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                  />
-                ) : (
-                  <XCircleFill
-                    onClick={() => {
-                      handleDisable(postCodeRef.current);
-                    }}
-                    className={`text-red-400 hover:text-red-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                  />
-                )}
-                {formik.touched.postCode && formik.errors.postCode ? (
-                  <Alert
-                    variant="danger"
-                    className="mt-1 px-1 py-2 border-l-8 !text-sm"
-                  >
-                    {formik.errors.postCode}
-                  </Alert>
-                ) : null}
-              </Form.FloatingLabel>
-              <Form.FloatingLabel label={"Role"}>
-                <Form.Control
-                  className="form-field disabled:bg-white"
-                  name="role"
-                  ref={roleRef}
-                  {...formik.getFieldProps("role")}
-                  disabled
+                <EditableField
+                  id={"city"}
+                  label={"City"}
+                  formik={formik}
+                  beforeEditData={user.city}
                 />
-              </Form.FloatingLabel>
-              <Form.FloatingLabel label={"Work Field"} className="p-0">
-                <Form.Control
-                  {...formik.getFieldProps("workField")}
-                  autoComplete="nope"
-                  name="workField"
-                  ref={workFieldRef}
-                  type="text"
-                  placeholder="Work Field"
-                  className="form-field disabled:bg-white !pr-8"
-                  required
-                  disabled
+              </CustomRow>
+
+              <CustomRow>
+                <EditableField
+                  id={"state"}
+                  label={"State"}
+                  formik={formik}
+                  beforeEditData={user.state}
                 />
-                {!fieldsEnabled.workField ? (
-                  <PencilSquare
-                    onClick={() => {
-                      handleEnable(workFieldRef.current);
-                    }}
-                    className={`text-emerald-400 hover:text-emerald-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                  />
-                ) : (
-                  <XCircleFill
-                    onClick={() => {
-                      handleDisable(workFieldRef.current);
-                    }}
-                    className={`text-red-400 hover:text-red-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                  />
-                )}
-                {formik.touched.workField && formik.errors.workField ? (
-                  <Alert
-                    variant="danger"
-                    className="mt-1 px-1 py-2 border-l-8 !text-sm"
-                  >
-                    {formik.errors.workField}
-                  </Alert>
-                ) : null}
-              </Form.FloatingLabel>
-              <Form.FloatingLabel label="Usage Target" className="p-0">
-                <Form.Control
-                  {...formik.getFieldProps("usageTarget")}
-                  autoComplete="nope"
-                  name="usageTarget"
-                  ref={usageTargetRef}
-                  type="text"
-                  placeholder="Usage Target"
-                  className="form-field disabled:bg-white !pr-8"
-                  required
-                  disabled
+                <EditableField
+                  id={"streetName"}
+                  label={"Street Name"}
+                  formik={formik}
+                  beforeEditData={user.streetName}
                 />
-                {!fieldsEnabled.usageTarget ? (
-                  <PencilSquare
-                    onClick={() => {
-                      handleEnable(usageTargetRef.current);
-                    }}
-                    className={`text-emerald-400 hover:text-emerald-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                  />
-                ) : (
-                  <XCircleFill
-                    onClick={() => {
-                      handleDisable(usageTargetRef.current);
-                    }}
-                    className={`text-red-400 hover:text-red-600 text-2xl absolute top-4 right-2 cursor-pointer`}
-                  />
-                )}
-                {formik.touched.usageTarget && formik.errors.usageTarget ? (
-                  <Alert
-                    variant="danger"
-                    className="mt-1 px-1 py-2 border-l-8 !text-sm"
-                  >
-                    {formik.errors.usageTarget}
-                  </Alert>
-                ) : null}
-              </Form.FloatingLabel>
-              <ButtonGroup>
+              </CustomRow>
+              <CustomRow>
+                <EditableField
+                  id={"workField"}
+                  label={"Work Field"}
+                  formik={formik}
+                  beforeEditData={user.workField}
+                />
+                <EditableField
+                  id={"usageTarget"}
+                  label={"Usage Target"}
+                  formik={formik}
+                  beforeEditData={user.usageTarget}
+                />
+              </CustomRow>
+
+              <ButtonGroup className="mt-2">
                 <Button
                   variant="info"
                   type="submit"
                   className="bg-sky-500 text-white"
                   disabled={formik.isSubmitting || !formik.isValid}
                 >
-                  {formik.isSubmitting ? "Loading..." : "Save"}
+                  {formik.isSubmitting ? "Saving..." : "Save"}
                 </Button>
 
                 <Button
                   variant="danger"
                   className="bg-red-500"
-                  onClick={handleLogout}
+                  onClick={() => {
+                    handleLogout(
+                      auth,
+                      setAuth,
+                      removeCookie,
+                      setLoading,
+                      navigate
+                    );
+                  }}
+                  disabled={formik.isSubmitting || loading}
                 >
                   Logout
                 </Button>

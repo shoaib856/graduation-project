@@ -1,6 +1,5 @@
-import { Alert, Badge, Form, ListGroup } from "react-bootstrap";
+import { Alert, Form, ListGroup } from "react-bootstrap";
 import InputField from "./inputField";
-import ShowOnHover from "./showOnHover";
 import MarkMultiItems from "./MarkMultiItems";
 
 const SpecificInfo = ({ features, errors, touched, formikProps }) => {
@@ -43,29 +42,6 @@ const SpecificInfo = ({ features, errors, touched, formikProps }) => {
           touched={touched}
         />
       ))}
-      <fieldset className="border p-3 rounded">
-        <legend>Features</legend>
-        <ListGroup className="h-32 overflow-y-scroll">
-          {features.length > 0 ? (
-            features.map((feature) => {
-              return (
-                <MarkMultiItems
-                  key={feature.id}
-                  formikProps={formikProps.getFieldProps}
-                  itemDescription={feature.describtion}
-                  itemName={feature.feature}
-                  itemType={"features"}
-                  itemPrice={feature.price}
-                />
-              );
-            })
-          ) : (
-            <Alert variant="warning" className="border-l-8 border-l-orange-500">
-              No Features Till Now!
-            </Alert>
-          )}
-        </ListGroup>
-      </fieldset>
     </>
   );
 };

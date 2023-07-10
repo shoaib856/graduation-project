@@ -1,9 +1,12 @@
 import { Alert, Badge, ListGroup } from "react-bootstrap";
 
 import {
+  ChatLeftTextFill,
   Dot,
   Exclamation,
   ExclamationCircleFill,
+  LightbulbFill,
+  TagFill,
   ThreeDotsVertical,
   Trash,
 } from "react-bootstrap-icons";
@@ -24,7 +27,8 @@ const ListItems = ({
   type,
   showPrice = false,
   auth,
-  setShowAdd,
+  setShowAdd = null,
+  setSelectedItem = null,
 }) => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -137,9 +141,11 @@ const ListItems = ({
               ) : null}
             </button>
           )}
-          <button onClick={() => setShowAdd(true)} className="form-btn !px-2">
-            +
-          </button>
+          {setShowAdd && (
+            <button onClick={() => setShowAdd(true)} className="form-btn !px-2">
+              +
+            </button>
+          )}
           <RefreshBtn setRefetch={setRefetch} />
         </div>
       </Alert>
@@ -176,8 +182,17 @@ const ListItems = ({
                   className="flex justify-between items-center gap-2 flex-wrap rounded border py-1 non-emerald-hover"
                 >
                   <div className="details !break-words">
-                    <h2 className="text-2xl md:text-xl font-bold">
-                      {item[type]}
+                    <h2 className="flex items-center gap-2 text-2xl md:text-xl font-bold">
+                      {item.type === "error" ? (
+                        <ExclamationCircleFill className="text-red-600" />
+                      ) : item.type === "feedback" ? (
+                        <ChatLeftTextFill className="text-blue-600" />
+                      ) : item.type === "suggestion" ? (
+                        <LightbulbFill className="text-yellow-600" />
+                      ) : (
+                        <TagFill className="text-emerald-600" />
+                      )}
+                      {item[type] || item.title}
                     </h2>
                     <div>
                       <p
@@ -202,12 +217,13 @@ const ListItems = ({
                       <Trash className="text-2xl" />
                     </button>
 
-                    <Link
-                      to={`./${type}-details/${item.id}`}
+                    <button
+                      onClick={() => setSelectedItem(item)}
+                      // to={`./${type}-details/${item.id}`}
                       className="bg-emerald-400 hover:bg-emerald-600 text-white badge text-2xl p-1"
                     >
                       <ThreeDotsVertical />
-                    </Link>
+                    </button>
                   </div>
                 </ListGroup.Item>
               ))

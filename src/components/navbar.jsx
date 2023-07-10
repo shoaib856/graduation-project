@@ -1,10 +1,7 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import logo from "/logo.png";
-import { Container, Image, Nav, Navbar, Offcanvas } from "react-bootstrap";
-import { toastMsg } from "./message-toast";
-import axios from "../api/axios";
+import { Container, Nav, Navbar, Offcanvas } from "react-bootstrap";
 import useAuth from "../hooks/useAuth";
-import useLoader from "../hooks/useLoader";
 import { useEffect, useState } from "react";
 import removeCookie from "../hooks/removeCookie";
 import Login from "./login";
@@ -14,6 +11,7 @@ import {
   BoxArrowLeft,
   CaretDownFill,
   ChatDotsFill,
+  CreditCard,
   HouseFill,
   PersonCircle,
   PersonFill,
@@ -21,84 +19,32 @@ import {
   Telegram,
   XCircleFill,
 } from "react-bootstrap-icons";
-import { setUserImage } from "../context/userImg";
 import { useRefetchState } from "../context/refetch";
 import { handleUserData } from "../context/userData";
+import getData from "../utils/getData";
+import handleLogout from "../utils/handleLogout";
+import fromBase64ToImg from "../utils/fromBase64ToImg";
+import DefaultUserLogo from "./DefaultUserLogo";
 
 function NavBar() {
   const [auth, setAuth] = useAuth();
   const [userData, setUserData] = handleUserData();
   const navigate = useNavigate();
-  const [loader, setLoader] = useLoader();
-  const [userImg, setUserImg] = setUserImage();
+  const [loading, setLoading] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showList, setShowList] = useState(false);
   const [showNavList, setShowNavList] = useState(false);
   const [refetch, setRefetch] = useRefetchState();
   const [error, setError] = useState(false);
 
-  const getData = async () => {
-    try {
-      await axios
-        .get(`/user/${auth.id}`, {
-          headers: { "x-auth-token": auth?.token },
-        })
-        .then((res) => {
-          console.log("Data fetched");
-          setError(false);
-          setUserData(res.data.data.user);
-        });
-    } catch (err) {
-      setError(true);
-      console.error(err.response.data.message || "Something went wrong");
-    }
-  };
   useEffect(() => {
-    auth && getData();
+    auth && getData(auth, setError, setUserData);
   }, [auth, error]);
 
-  const handleLogout = async () => {
-    setLoader(true);
-    setShowLogin(false);
-    await axios
-      .post(
-        "/logout",
-        {},
-        {
-          headers: {
-            "x-auth-token": auth.token,
-          },
-        }
-      )
-      .then((res) => {
-        navigate({ pathname: "./" });
-        toastMsg("success", res.data.message);
-        setLoader(false);
-        setAuth(null);
-        removeCookie("userIn");
-      })
-      .catch((err) => {
-        setLoader(false);
-        toastMsg("error", err.response.data.message);
-      });
-  };
-  const getAvatar = async () => {
-    await axios
-      .get(`/logo/${auth?.id}`, {
-        responseType: "blob",
-        headers: { "x-auth-token": auth?.token },
-      })
-      .then((imgRes) => {
-        setUserImg(imgRes.data);
-        setRefetch(false);
-      })
-      .catch(() => setUserImg(null));
-  };
   const hideLoginForm = () => {
     setShowLogin(false);
   };
   useEffect(() => {
-    auth && getAvatar();
     !auth && hideLoginForm();
   }, [auth, refetch]);
 
@@ -182,15 +128,21 @@ function NavBar() {
               className="flex items-center gap-2 focus:outline-none"
               onClick={() => setShowList(!showList)}
             >
-              {userImg ? (
-                <Image
-                  roundedCircle
-                  className="h-8 w-8"
-                  src={URL.createObjectURL(userImg)}
-                  alt="Avatar"
+              {userData?.image == "null" || userData?.image == undefined ? (
+                <DefaultUserLogo
+                  dims={"h-8 w-8"}
+                  nameAbbreviation={
+                    userData?.firstName[0]?.toUpperCase() +
+                      userData?.lastName[0]?.toUpperCase() || "UK"
+                  }
+                  logo
                 />
               ) : (
-                <PersonCircle className="bg-white rounded-full text-3xl" />
+                <img
+                  className="h-8 w-8 rounded-full object-cover"
+                  src={URL.createObjectURL(fromBase64ToImg(userData?.image))}
+                  alt="Avatar"
+                />
               )}
               <CaretDownFill className="text-xs" />
             </button>
@@ -224,6 +176,14 @@ function NavBar() {
                   <ChatDotsFill />
                   Community
                 </Link>
+                <Link
+                  to={"pricing/"}
+                  onClick={() => setShowList(false)}
+                  className="flex items-center gap-2 px-4 py-2 text-slate-800 hover:bg-gray-200"
+                >
+                  <CreditCard />
+                  Pricing
+                </Link>
                 {(auth?.role === "admin" || auth?.role === "superAdmin") && (
                   <Link
                     to={"dashboard/"}
@@ -235,9 +195,15 @@ function NavBar() {
                   </Link>
                 )}
                 <button
-                  onClick={() => {
-                    handleLogout();
-                    setUserImg(null);
+                  onClick={async () => {
+                    setShowLogin(false);
+                    await handleLogout(
+                      auth,
+                      setAuth,
+                      removeCookie,
+                      setLoading,
+                      navigate
+                    );
                     setShowList(false);
                   }}
                   className="w-full px-4 py-2 text-gray-800 hover:bg-gray-200 flex items-center gap-2"
