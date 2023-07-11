@@ -17,8 +17,8 @@ const ProfileNavbar = () => {
           <NavLink to={"./edit-pwd/"} className="list-group-item">
             Change Password
           </NavLink>
-          <NavLink to={"./update-user-img/"} className="list-group-item">
-            Change Logo
+          <NavLink to={"./payments/"} className="list-group-item">
+            Payments
           </NavLink>
           <NavLink to={"./devices/"} className="list-group-item">
             Devices

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Form } from "react-bootstrap";
 
-const EditableField = ({ id, label, formik, beforeEditData }) => {
+const EditableField = ({ as, id, label, formik, beforeEditData }) => {
   const [disabled, setDisabled] = React.useState(true);
   const fieldRef = React.useRef(null);
   useEffect(() => {
@@ -35,6 +35,7 @@ const EditableField = ({ id, label, formik, beforeEditData }) => {
         />
       </div>
       <Form.Control
+        as={as ? as : "input"}
         type="text"
         className="form-field"
         ref={fieldRef}

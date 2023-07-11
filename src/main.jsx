@@ -9,6 +9,7 @@ import { RecoilRoot } from "recoil";
 import { DevSupport } from "@react-buddy/ide-toolbox";
 import { ComponentPreviews, useInitial } from "./dev/index.js";
 import PurchaseFailed from "./pages/PurchaseFailed";
+import Payments from "./pages/Payments";
 
 // layouts
 const RootLayout = lazy(() => import("./layout/rootLayout"));
@@ -112,6 +113,10 @@ const router = createBrowserRouter([
           {
             path: "edit-pwd",
             element: <EditPwd />,
+          },
+          {
+            path: "payments",
+            element: <Payments />,
           },
           {
             path: "devices",

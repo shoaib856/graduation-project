@@ -44,9 +44,7 @@ const AddItem = ({
                 request ? " Request" : ""
               } added`
             );
-            setTimeout(() => {
-              setShow(false);
-            }, 1000);
+            setShow(false);
           });
       } catch (err) {
         setError(true);
@@ -71,15 +69,17 @@ const AddItem = ({
   return (
     <Modal centered show={show} onHide={onHide}>
       <Modal.Header className="flex justify-between items-center">
-        <Modal.Title>
-          {request ? "Request" : "Add"}{" "}
-          {type?.at(0).toUpperCase() + type?.slice(1)}
-        </Modal.Title>
-        {msg ? (
-          <Badge className="text-xs" bg={error ? "danger" : "success"}>
-            {msg}
-          </Badge>
-        ) : null}
+        <div className="flex items-center gap-2">
+          <Modal.Title>
+            {request ? "Request" : "Add"}{" "}
+            {type?.at(0).toUpperCase() + type?.slice(1)}
+          </Modal.Title>
+          {msg ? (
+            <Badge className="text-xs" bg={error ? "danger" : "success"}>
+              {msg}
+            </Badge>
+          ) : null}
+        </div>
         <XCircleFill className="close-btn" onClick={onHide} />
       </Modal.Header>
       <Modal.Body>
