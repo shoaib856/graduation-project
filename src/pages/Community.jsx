@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "../api/axios";
 import useAuthValue from "../hooks/useAuthValue";
-import { toastMsg } from "../components/message-toast";
 import CustomizedAlert from "../components/CustomizedAlert";
 import { Alert, Container, Placeholder } from "react-bootstrap";
 import AddPost from "../components/AddPost";
@@ -35,7 +34,6 @@ const Community = () => {
       .then((res) => {
         setLoading(false);
         setPosts(res.data.data);
-        // console.log(res.data.data);
         setError(false);
         setRefetch(false);
       })
@@ -76,17 +74,19 @@ const Community = () => {
       setFilteredPostsByUser([]);
     }
   }, [selectedUser]);
+  useEffect(() => {
+    console.log(posts);
+  }, [posts]);
 
   return (
     <Container className="self-start">
-      {show && (
-        <AddPost
-          initialValues={{ content: "", tags: [] }}
-          setRefetch={setRefetch}
-          show={show}
-          setShow={setShow}
-        />
-      )}
+      <AddPost
+        initialValues={{ content: "", tags: [], images: [] }}
+        setRefetch={setRefetch}
+        show={show}
+        setShow={setShow}
+      />
+
       <div className="px-2 py-1 backdrop-blur my-2 flex flex-col gap-1 sticky top-[5.3rem] md:top-14 z-10">
         <div className="flex flex-wrap justify-between items-center">
           <h2 className="text-xl font-bold order-1">Community</h2>

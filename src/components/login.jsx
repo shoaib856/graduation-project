@@ -45,7 +45,7 @@ function Login({ show, onHide }) {
             token: res?.data.token,
             id: res?.data.user_id,
           });
-          setCookie(
+          sessionStorage.setItem(
             "userIn",
             JSON.stringify({
               role: res?.data.role,

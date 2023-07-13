@@ -1,6 +1,8 @@
 import { Alert, Badge, ListGroup } from "react-bootstrap";
 
 import {
+  Camera2,
+  CameraVideoFill,
   ChatLeftTextFill,
   Dot,
   Exclamation,
@@ -24,6 +26,7 @@ import FeatureDetails from "../pages/FeatureDetails";
 import TagDetails from "../pages/TagDetails";
 import WarningMessage from "./warningMessage";
 import { toastMsg } from "./message-toast";
+import { useUserData } from "../context/userData";
 
 const ListItems = ({
   refetch,
@@ -32,6 +35,8 @@ const ListItems = ({
   showPrice = false,
   auth,
   setShowAdd = null,
+  detailed = false,
+  mine = false,
 }) => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -44,6 +49,8 @@ const ListItems = ({
   const [selectedItem, setSelectedItem] = useState(null);
   const [showDelete, setShowDelete] = useState(false);
   const [abortController, setAbortController] = useState(null);
+  const [id, setId] = useState(null);
+  const user = useUserData();
 
   const deleteItem = async (id) => {
     const controller = new AbortController();
@@ -53,15 +60,17 @@ const ListItems = ({
       .delete(`/${type}/${id}`, {
         signal: controller.signal,
         headers: {
-          "x-auth-token": auth.token,
+          "x-auth-token": auth?.token,
         },
       })
       .then(() => {
         toastMsg("success", "Item deleted successfully");
         setRefetch(true);
         setLoading(false);
+        setShowDelete(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log(err);
         setLoading(false);
         if (abortController?.signal.aborted) return;
         setRefetch(false);
@@ -74,9 +83,9 @@ const ListItems = ({
   const getData = async () => {
     setLoading(true);
     await axios
-      .get(`/${type}`, {
+      .get(`/${type}${mine ? "/getMyReports" : ""}`, {
         headers: {
-          "x-auth-token": auth.token,
+          "x-auth-token": auth?.token,
         },
       })
       .then((res) => {
@@ -84,11 +93,12 @@ const ListItems = ({
         setItems(res.data.data);
         res.data.data.length === 0 ? setEmpty(true) : setEmpty(false);
         setRefetch(false);
+        setError(false);
       })
       .catch((err) => {
         setLoading(false);
         setError(true);
-        console.log(err);
+        console.error(err);
       });
   };
 
@@ -101,7 +111,7 @@ const ListItems = ({
     axios
       .get("/tag/getTagRequests", {
         headers: {
-          "x-auth-token": auth.token,
+          "x-auth-token": auth?.token,
         },
       })
       .then((res) => {
@@ -214,24 +224,37 @@ const ListItems = ({
                       key={item.id}
                       className="flex justify-between items-center gap-2 flex-wrap rounded border py-1 non-emerald-hover"
                     >
-                      <div className="details !break-words">
-                        <h2 className="flex items-center gap-2 text-2xl md:text-xl font-bold">
+                      <div className="details !break-words !break-all">
+                        <h2 className="flex border-b-2 border-emerald-400 items-center gap-2 text-2xl md:text-xl font-bold">
                           {item.type === "error" ? (
                             <ExclamationCircleFill className="text-red-600" />
                           ) : item.type === "feedback" ? (
                             <ChatLeftTextFill className="text-blue-600" />
                           ) : item.type === "suggestion" ? (
                             <LightbulbFill className="text-yellow-600" />
+                          ) : item.type === "video" ? (
+                            <CameraVideoFill className="text-cyan-600" />
+                          ) : item.type === "image" ? (
+                            <Camera2 className="text-indigo-600" />
                           ) : (
                             <TagFill className="text-emerald-600" />
                           )}
                           {item[type] || item.title}
+                          {item?.user && (
+                            <sub className="text-sm text-gray-500 font-thin">
+                              ({item.user.userName})
+                            </sub>
+                          )}
                         </h2>
                         <div>
                           <p
-                            className={`text-lg md:text-base max-w-[150px] w-full break-words truncate`}
+                            className={`text-lg md:text-base max-w-xs w-full break-words break-all`}
                           >
-                            {item.describtion}
+                            {item.describtion.split("\n").map((line, i) => (
+                              <span key={i} className="block">
+                                {line}
+                              </span>
+                            ))}
                           </p>
                         </div>
                       </div>
@@ -245,29 +268,42 @@ const ListItems = ({
                             {item.price}$
                           </Badge>
                         )}
-                        <button
-                          onClick={() => setShowDelete(true)}
-                          className="bg-red-500 hover:bg-red-600 text-base md:text-sm cursor-pointer text-white p-1 rounded"
-                          disabled={loading}
-                        >
-                          <Trash className="text-2xl" />
-                        </button>
-                        <WarningMessage
-                          loading={loading}
-                          show={showDelete}
-                          setShow={setShowDelete}
-                          process={deleteItem}
-                          handleCancel={handleCancel}
-                          param={item.id}
-                        />
+                        {showDelete && id === item.id && (
+                          <WarningMessage
+                            loading={loading}
+                            show={showDelete}
+                            setShow={setShowDelete}
+                            process={deleteItem}
+                            handleCancel={handleCancel}
+                            param={id}
+                          />
+                        )}
                         <button
                           onClick={() => {
-                            setSelectedItem(item);
+                            setShowDelete(true);
+                            setId(item.id);
                           }}
-                          className="bg-emerald-400 hover:bg-emerald-600 text-white badge text-2xl p-1"
+                          className="text-2xl disabled:bg-red-200 bg-red-500 hover:bg-red-600 text-white p-1 rounded"
+                          disabled={
+                            ((auth.role === "admin" &&
+                              item.user.role === "admin") ||
+                              item.user.role === "superAdmin") &&
+                            user.userName !== item.user.userName
+                          }
                         >
-                          <ThreeDotsVertical />
+                          <Trash />
                         </button>
+
+                        {!detailed && (
+                          <button
+                            onClick={() => {
+                              setSelectedItem(item);
+                            }}
+                            className="bg-emerald-400 hover:bg-emerald-600 text-white badge text-2xl p-1"
+                          >
+                            <ThreeDotsVertical />
+                          </button>
+                        )}
                       </div>
                     </ListGroup.Item>
                   ))

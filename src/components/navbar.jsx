@@ -3,7 +3,6 @@ import logo from "/logo.png";
 import { Container, Nav, Navbar, Offcanvas } from "react-bootstrap";
 import useAuth from "../hooks/useAuth";
 import { useEffect, useState } from "react";
-import removeCookie from "../hooks/removeCookie";
 import Login from "./login";
 import {
   AppIndicator,
@@ -200,7 +199,6 @@ function NavBar() {
                     await handleLogout(
                       auth,
                       setAuth,
-                      removeCookie,
                       setLoading,
                       navigate
                     );

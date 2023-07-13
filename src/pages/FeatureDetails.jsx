@@ -1,4 +1,3 @@
-
 import useAuthValue from "../hooks/useAuthValue";
 import { useFormik } from "formik";
 import axios from "../api/axios";
@@ -32,6 +31,7 @@ const FeatureDetails = ({
       feature: selectedFeature?.feature,
       describtion: selectedFeature?.describtion,
       price: selectedFeature?.price,
+      type: selectedFeature?.type,
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -63,7 +63,6 @@ const FeatureDetails = ({
               setRefetch(true);
             }, 2000);
             setSelectedFeature(null);
-            
           });
       } catch (err) {
         toastMsg("error", "Something went wrong");

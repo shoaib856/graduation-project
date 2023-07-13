@@ -6,6 +6,7 @@ import EditableField from "./editableField";
 import { toastMsg } from "./message-toast";
 import axios from "../api/axios";
 import useAuthValue from "../hooks/useAuthValue";
+import SelectBox from "./SelectBox";
 
 const ItemDetails = ({
   formik,
@@ -48,6 +49,7 @@ const ItemDetails = ({
   const handleCancel = () => {
     abortController?.abort();
   };
+
   return (
     <div className="flex flex-col gap-2 text-emerald-600 w-full bg-white rounded-xl shadow-xl overflow-hidden">
       <div className="border-b-2 border-emerald-600 p-3 flex justify-between items-center">
@@ -98,12 +100,20 @@ const ItemDetails = ({
           label={type[0]?.toUpperCase() + type.slice(1)}
         />
         {type === "feature" && (
-          <EditableField
-            beforeEditData={selectedItem.price}
-            formik={formik}
-            id={"price"}
-            label={"Price"}
-          />
+          <>
+            <EditableField
+              beforeEditData={selectedItem.price}
+              formik={formik}
+              id={"price"}
+              label={"Price"}
+            />
+            <SelectBox
+              formik={formik}
+              id={"type"}
+              label={"Type"}
+              options={["image", "video", "other"]}
+            />
+          </>
         )}
         <EditableField
           beforeEditData={selectedItem.describtion}

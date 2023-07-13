@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import { toastMsg } from "../components/message-toast";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import removeCookie from "../hooks/removeCookie";
 import { PersonCircle } from "react-bootstrap-icons";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -121,16 +120,16 @@ function Profile() {
     try {
       if (profileLocation) {
         if (userData && !refetch) {
-          formik.setValues(userData);
+          await formik.setValues(userData);
           setImage(fromBase64ToImg(userData.image));
           setUser(userData);
         } else if (refetch) {
-          getData(auth, setError, setUserData, setRefetch);
+          await getData(auth, setError, setUserData, setRefetch);
         }
       } else {
         setLoading(true);
         await axios
-          .get(`user/${params.id}`, {
+          .get(`user/${params.id}`,{
             headers: { "x-auth-token": auth?.token },
           })
           .then((res) => {
@@ -139,7 +138,7 @@ function Profile() {
             setImage(fromBase64ToImg(res.data.data.user.image));
             setLoading(false);
             setRefetch(false);
-            auth.id == params.id && refetch
+            auth.id === params.id && refetch
               ? getData(auth, setError, setUserData, setRefetch)
               : null;
           })
@@ -181,10 +180,10 @@ function Profile() {
             <PersonCircle className="text-gray-300 text-8xl" />
           </Card.Header>
           <Card.Body>
-            <Placeholder as={Card.Title} animation="glow">
+            <Placeholder as={"span"} animation="glow">
               <Placeholder xs={6} />
             </Placeholder>
-            <Placeholder as={Card.Text} animation="glow">
+            <Placeholder as={"span"} animation="glow">
               <Placeholder xs={12} />
               <Placeholder xs={12} />
               <Placeholder xs={12} />
@@ -198,8 +197,6 @@ function Profile() {
             <div className="flex md:flex-col items-center gap-2 justify-center">
               <ShowImage
                 formik={formik}
-                image={image}
-                setImage={setImage}
                 width40
                 base64
               />
@@ -319,7 +316,6 @@ function Profile() {
                     handleLogout(
                       auth,
                       setAuth,
-                      removeCookie,
                       setLoading,
                       navigate
                     );

@@ -13,6 +13,7 @@ import daysFromNow from "../utils/daysFromNow";
 import AddPost from "./AddPost";
 import WarningMessage from "./warningMessage";
 import { toastMsg } from "./message-toast";
+import base64toImg from "../utils/fromBase64ToImg";
 
 const Post = ({
   post,
@@ -101,7 +102,7 @@ const Post = ({
         </div>
         <div className="flex gap-2 flex-col items-end md:items-start">
           <div className="flex gap-2">
-            {tags?.map((tag,i) => (
+            {tags?.map((tag, i) => (
               <button
                 onClick={() => setSearch(tag)}
                 key={i}
@@ -155,16 +156,28 @@ const Post = ({
           )}
         </div>
       </div>
-      <p className="border break-words break-all !border-emerald-700 py-1 px-2 rounded">
-        {post?.content
-          .trim()
-          .split("\n")
-          .map((line, i) => (
-            <span className="block" key={i}>
-              {line}
-            </span>
+      <div className="border !border-emerald-700 py-1 px-2 rounded">
+        <p className="break-words break-all">
+          {post?.content
+            .trim()
+            .split("\n")
+            .map((line, i) => (
+              <span className="block" key={i}>
+                {line}
+              </span>
+            ))}
+        </p>
+        <div>
+          {images?.map((image, i) => (
+            <img
+              key={i}
+              src={URL.createObjectURL(base64toImg(image))}
+              alt="post"
+              className="w-full h-48 object-cover rounded-md mt-2"
+            />
           ))}
-      </p>
+        </div>
+      </div>
       <span className="absolute bottom-2 right-2 text-xs text-gray-400">
         {daysFromNow(post?.createdAt)}
       </span>

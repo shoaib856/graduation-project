@@ -40,10 +40,8 @@ function Dashboard() {
         setLoading(false);
         setError(true);
         setRefetch(false);
-        setMsg(
-          err.response.data.message ||
-            "Something went wrong, please try again later"
-        );
+        setMsg("Something went wrong, please try again later");
+        console.error(err);
       });
   };
 

@@ -4,7 +4,6 @@ import { toastMsg } from "../components/message-toast";
 const handleLogout = async (
   auth,
   setAuth,
-  removeCookie,
   setLoading,
   navigate
 ) => {
@@ -24,7 +23,7 @@ const handleLogout = async (
       toastMsg("success", res.data.message);
       setLoading(false);
       setAuth(null);
-      removeCookie("userIn");
+      sessionStorage.removeItem("userIn");
     })
     .catch((err) => {
       setLoading(false);

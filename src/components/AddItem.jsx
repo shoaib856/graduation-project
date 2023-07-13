@@ -92,40 +92,46 @@ const AddItem = ({
           errors={formik.errors}
           touched={formik.touched}
         />
-        <Form.Group className="mb-2">
-          <Container fluid className="flex justify-between items-center pb-1">
-            <label htmlFor="describtion">Description</label>
-            {formik.errors.describtion && formik.touched.describtion ? (
-              <Badge bg="danger">{formik.errors.describtion}</Badge>
-            ) : null}
-          </Container>
-          <Form.Control
-            as="textarea"
-            rows={3}
-            className="form-field"
-            placeholder="Enter describtion"
-            id="describtion"
-            {...formik.getFieldProps("describtion")}
-          />
-        </Form.Group>
-
         {type === "feature" ? (
-          <InputField
-            Label="Price"
-            type="number"
-            placeholder="Enter price"
-            id="price"
-            formikProps={formik.getFieldProps}
-            errors={formik.errors}
-            touched={formik.touched}
-          />
+          <>
+            <InputField
+              Label="Price"
+              type="number"
+              placeholder="Enter price"
+              id="price"
+              formikProps={formik.getFieldProps}
+              errors={formik.errors}
+              touched={formik.touched}
+            />
+            <Form.Group className="mb-3" controlId="type">
+              <Form.Label>Type</Form.Label>
+              <Form.Select
+                className="form-field"
+                {...formik.getFieldProps("type")}
+              >
+                <option value="image">Image</option>
+                <option value="video">Video</option>
+                <option value="other">Other</option>
+              </Form.Select>
+            </Form.Group>
+          </>
         ) : null}
+        <InputField
+          Label="Description"
+          type="text"
+          placeholder="Enter description"
+          id="describtion"
+          formikProps={formik.getFieldProps}
+          errors={formik.errors}
+          touched={formik.touched}
+          as={"textarea"}
+        />
       </Modal.Body>
       <Modal.Footer>
         <button
           type="button"
           onClick={formik.handleSubmit}
-          className="form-btn"
+          className="form-btn w-full"
           disabled={formik.isSubmitting || !(formik.isValid && formik.dirty)}
         >
           {formik.isSubmitting ? "Submitting..." : "Submit"}

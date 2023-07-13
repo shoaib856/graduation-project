@@ -1,94 +1,169 @@
-import { useEffect, useState } from "react";
-
-import { ButtonGroup, Dropdown, Form } from "react-bootstrap";
-import Btn from "../components/button";
+import React, {useEffect, useState} from "react";
 
 // import { showResult } from "../components/showResult";
-
-import { toastMsg } from "../components/message-toast";
-import axios from "axios";
+import axiosImgModel from "../api/axiosImgModel.js";
+import axios from "../api/axios.js";
 import useAuthValue from "../hooks/useAuthValue.js";
-import { Plus, PlusCircle } from "react-bootstrap-icons";
-import { useFormik } from "formik";
+import {useFormik} from "formik";
 import DisplayResults from "../components/DisplayResults";
 import ShowImage from "../components/ShowImage";
+import MarkMultiItems from "../components/MarkMultiItems.jsx";
+import CustomizedAlert from "../components/CustomizedAlert.jsx";
+import {Alert, ListGroup} from "react-bootstrap";
 
 function PlantDiseaseApp() {
-  document.title = "Farm Vision | App";
-  const [image, setImage] = useState(null);
-  const [result, setResult] = useState(null);
-  const [resultImg, setResultImg] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const auth = useAuthValue();
-  const [isHover, setIsHover] = useState(false);
-  const formik = useFormik({
-    initialValues: {
-      image: null,
-    },
-    onSubmit: (values) => {
-      console.log(values);
-    },
-  });
+    document.title = "Farm Vision | App";
+    const [image, setImage] = useState(null);
+    const [result, setResult] = useState(null);
+    const [resultImg, setResultImg] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [refetch, setRefetch] = useState(false);
+    const [error, setError] = useState(false);
+    const [features, setFeatures] = useState([]);
+    const auth = useAuthValue();
+    const [isHover, setIsHover] = useState(false);
+    const formik = useFormik({
+        initialValues: {
+            image: null, features: [],
+        }, validate: (values) => {
+            let errors = {};
+            if (!values.image) {
+                errors.image = "Required";
+            }
+            if (!values.features.length) {
+                errors.features = "Required";
+            }
+            return errors;
+        }, onSubmit: async (values) => {
+            values = {...values, "x-auth-token": auth.token};
+            console.log(values);
+            await axiosImgModel
+                .post("/imagesModels/process", values, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
 
-  const diseaseDetectionModel = async () => {
-    console.log("test...");
-    await axios
-      .post(
-        "https://test-ml-api.onrender.com/api/imagesModel/diseaseDetection",
-        { image, "x-auth-token": auth.token },
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      )
-      .then((res) => {
-        console.log("res");
-        console.log(res.data);
-        setResult(res.data);
-        // setLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+                })
+                .then((res) => {
+                    console.log(res.data);
+                    setResult(res.data);
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
 
-  return (
-    <div className="text-xl w-full text-left bg-white shadow-lg text-emerald-900">
-      <h1 className="pl-2 pt-2 text-3xl md:text-xl font-bold border-b-2 border-emerald-500">
-        Application
-      </h1>
-      {result && <DisplayResults result={result} />}
-      <form className="p-7 w-fit mx-auto flex flex-col gap-5">
-        <ShowImage width60={true} image={image} setImage={setImage} />
-        <Dropdown as={ButtonGroup} className="flex justify-center">
-          <button
-            type="button"
-            className="form-btn !rounded-r-none !flex-1"
-            onClick={diseaseDetectionModel}
-            disabled={loading}
-          >
-            {loading ? "Loading..." : "Detect Disease in Plant"}
-          </button>
-          <Dropdown.Toggle
-            as={"button"}
-            split
-            type="button"
-            className="form-btn !rounded-l-none"
-            id="dropdown-split-basic"
-          ></Dropdown.Toggle>
-          <Dropdown.Menu>
-            <Dropdown.Item
-              className="active:bg-slate-200 text-black"
-              onClick={() => {}}
+        },
+    });
+    const getFeatures = async () => {
+        setLoading(true)
+        await axios
+            .get("/feature", {
+                headers: {
+                    "x-auth-token": auth?.token,
+                }
+            })
+            .then((res) => {
+                setFeatures(res.data.data);
+                setLoading(false)
+                setError(false)
+            })
+            .catch((err) => {
+                setLoading(false)
+                setError(true)
+                console.error(err);
+            });
+    }
+    useEffect(() => {
+        getFeatures();
+    }, [auth]);
+
+    return (<div className="text-xl w-full text-left bg-white shadow-lg">
+        <h1 className="pl-2 pt-2 text-3xl md:text-xl font-bold border-b-2 border-emerald-500">
+            Application
+        </h1>
+        {result && <DisplayResults result={result}/>}
+        <form className="p-3 max-w-4xl w-full mx-auto">
+            {/*<Tabs defaultActiveKey="image">*/}
+            {/*    <Tabs.Item eventKey="image" title="Image">*/}
+            <div className={"text-emerald-500 mt-4 flex md:flex-col gap-2 items-center"}>
+                <div className={"mx-auto"}>
+                    <ShowImage width60 formik={formik}/>
+                </div>
+                <div className={"flex-1 w-full"}>
+                    <p className={"border-b-2 mb-2 border-emerald-600 text-black"}>Choose Model</p>
+                    <ListGroup>
+                        {error ? (<CustomizedAlert
+                            variant={"danger"}
+                            msg={"Error While Loading Tags"}
+                            setRefetch={setRefetch}
+                        />) : loading ? (<CustomizedAlert
+                            variant="info"
+                            msg={"Loading..."}
+                            spinner
+                        />) : features?.length > 0 ? (features.map((feature) => (feature.type === "image" &&
+                            <MarkMultiItems
+                                key={feature.id}
+                                formikProps={formik.getFieldProps}
+                                itemDescription={feature.describtion}
+                                itemName={feature.feature}
+                                itemType={"features"}
+                                formikValues={formik.values}
+                            />))) : (<Alert
+                            variant="warning"
+                            className="border-l-8 border-l-orange-500"
+                        >
+                            No Features Till Now!
+                        </Alert>)}
+                    </ListGroup>
+                </div>
+            </div>
+            <button
+                disabled={formik.isSubmitting || !(formik.isValid && formik.dirty)}
+                onClick={formik.handleSubmit}
+                type={"submit"}
+                className="form-btn mt-4 !text-lg w-full"
             >
-              Action
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-      </form>
-    </div>
-  );
+                {formik.isSubmitting ? "Loading..." : "Process"}
+            </button>
+            {/*    </Tabs.Item>*/}
+            {/*    <Tabs.Item eventKey="video" title="Video">*/}
+            {/*        <div className={"flex md:flex-col gap-2 items-center"}>*/}
+            {/*            <div className={"mx-auto"}>*/}
+            {/*                <ShowImage width60 formik={formik}/>*/}
+            {/*            </div>*/}
+            {/*            <div className={"flex-1"} >*/}
+            {/*                <p className={"border-b-2 mb-2 border-emerald-600 text-black"}>Choose Model</p>*/}
+            {/*                <ListGroup>*/}
+            {/*                    {error ? (<CustomizedAlert*/}
+            {/*                        variant={"danger"}*/}
+            {/*                        msg={"Error While Loading Tags"}*/}
+            {/*                        setRefetch={setRefetch}*/}
+            {/*                    />) : loading ? (<CustomizedAlert*/}
+            {/*                        variant="info"*/}
+            {/*                        msg={"Loading..."}*/}
+            {/*                        spinner*/}
+            {/*                    />) : features?.length > 0 ? (features.map((feature) => (*/}
+            {/*                        feature.type === "video" &&*/}
+            {/*                        <MarkMultiItems*/}
+            {/*                            key={feature.id}*/}
+            {/*                            formikProps={formik.getFieldProps}*/}
+            {/*                            itemDescription={feature.describtion}*/}
+            {/*                            itemName={feature.feature}*/}
+            {/*                            itemType={"features"}*/}
+            {/*                            formikValues={formik.values}*/}
+            {/*                        />))) : (<Alert*/}
+            {/*                        variant="warning"*/}
+            {/*                        className="border-l-8 border-l-orange-500"*/}
+            {/*                    >*/}
+            {/*                        No Features Till Now!*/}
+            {/*                    </Alert>)}*/}
+            {/*                </ListGroup>*/}
+            {/*            </div>*/}
+            {/*        </div>*/}
+            {/*    </Tabs.Item>*/}
+            {/*</Tabs>*/}
+        </form>
+    </div>);
 }
 
 export default PlantDiseaseApp;

@@ -1,8 +1,15 @@
 import React from "react";
 import { Alert, Spinner } from "react-bootstrap";
 import refresh from "../assets/icons/refresh.svg";
+import RefreshBtn from "./RefreshBtn";
 
-const CustomizedAlert = ({ msg, variant, spinner = false, setRefetch }) => {
+const CustomizedAlert = ({
+  msg,
+  variant,
+  spinner = false,
+  refetch,
+  setRefetch,
+}) => {
   return (
     <Alert variant={variant} className="flex justify-between items-center">
       <div className="flex gap-3 items-center">
@@ -10,9 +17,7 @@ const CustomizedAlert = ({ msg, variant, spinner = false, setRefetch }) => {
         <p>{msg}</p>
       </div>
       {!(variant === "info") && setRefetch && (
-        <button onClick={() => setRefetch(true)} className="form-btn">
-          <img src={refresh} alt="refresh" className="w-5 h-5" />
-        </button>
+        <RefreshBtn refetch={refetch} setRefetch={setRefetch} />
       )}
     </Alert>
   );

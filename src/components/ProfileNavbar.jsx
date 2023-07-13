@@ -23,6 +23,9 @@ const ProfileNavbar = () => {
           <NavLink to={"./devices/"} className="list-group-item">
             Devices
           </NavLink>
+          <NavLink to={"./reports/"} className="list-group-item">
+            My Reports
+          </NavLink>
         </nav>
       </Navbar.Collapse>
     </Navbar>

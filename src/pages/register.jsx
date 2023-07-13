@@ -97,7 +97,7 @@ function Register() {
               token: res?.data.token,
               id: res?.data.user_id,
             });
-            setCookie(
+            sessionStorage.setItem(
               "auth",
               JSON.stringify({
                 role: res?.data.role,

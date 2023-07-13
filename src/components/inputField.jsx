@@ -1,6 +1,7 @@
 import { Badge, Container, Form } from "react-bootstrap";
 
 const InputField = ({
+  as,
   Label,
   type,
   placeholder,
@@ -21,6 +22,7 @@ const InputField = ({
       )}
       <Form.Control
         id={id}
+        as={as ? as : "input"}
         {...formikProps(id)}
         type={type}
         placeholder={placeholder}
