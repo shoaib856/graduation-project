@@ -11,11 +11,12 @@ import MarkMultiItems from "../components/MarkMultiItems.jsx";
 import CustomizedAlert from "../components/CustomizedAlert.jsx";
 import {Alert, ListGroup} from "react-bootstrap";
 
+
 function PlantDiseaseApp() {
     document.title = "Farm Vision | App";
     const [image, setImage] = useState(null);
     const [result, setResult] = useState(null);
-    const [resultImg, setResultImg] = useState(null);
+    const [showResult,setShowResult] = useState(false)
     const [loading, setLoading] = useState(false);
     const [refetch, setRefetch] = useState(false);
     const [error, setError] = useState(false);
@@ -36,7 +37,6 @@ function PlantDiseaseApp() {
             return errors;
         }, onSubmit: async (values) => {
             values = {...values, "x-auth-token": auth.token};
-            console.log(values);
             await axiosImgModel
                 .post("/imagesModels/process", values, {
                     headers: {
@@ -45,8 +45,8 @@ function PlantDiseaseApp() {
 
                 })
                 .then((res) => {
-                    console.log(res.data);
                     setResult(res.data);
+                    setShowResult(true)
                 })
                 .catch((err) => {
                     console.error(err);
@@ -81,7 +81,7 @@ function PlantDiseaseApp() {
         <h1 className="pl-2 pt-2 text-3xl md:text-xl font-bold border-b-2 border-emerald-500">
             Application
         </h1>
-        {result && <DisplayResults result={result}/>}
+        {result && <DisplayResults show={showResult} setShow={setShowResult} result={result}/>}
         <form className="p-3 max-w-4xl w-full mx-auto">
             {/*<Tabs defaultActiveKey="image">*/}
             {/*    <Tabs.Item eventKey="image" title="Image">*/}

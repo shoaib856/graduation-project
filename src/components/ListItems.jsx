@@ -285,10 +285,10 @@ const ListItems = ({
                           }}
                           className="text-2xl disabled:bg-red-200 bg-red-500 hover:bg-red-600 text-white p-1 rounded"
                           disabled={
-                            ((auth.role === "admin" &&
-                              item.user.role === "admin") ||
-                              item.user.role === "superAdmin") &&
-                            user.userName !== item.user.userName
+                            ((auth?.role === "admin" &&
+                              item?.user?.role === "admin") ||
+                              item?.user?.role === "superAdmin") &&
+                            user?.userName !== item?.user?.userName
                           }
                         >
                           <Trash />

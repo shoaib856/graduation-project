@@ -15,20 +15,26 @@ const WarningMessage = ({
     <Modal show={show} onHide={handleClose} centered>
       <Modal.Body className="text-4xl text-center">Are you sure?</Modal.Body>
       <Modal.Footer className="flex justify-between">
-        <button
-          className="form-btn"
-          onClick={() => {
-            param ? process(param) : process();
-          }}
-          disabled={loading}
+        {!loading?<button
+            className="form-btn"
+            onClick={() => {
+              param ? process(param) : process();
+            }}
         >
-          {loading ? "Processing..." : "Yes, do it!"}
-        </button>
+          YES
+        </button>:
+            <button
+              onClick={handleCancel}
+              className={"bg-amber-300 p-2 rounded hover:bg-amber-400"}
+            >
+              Cancel Operation
+            </button>
+        }
         <button
           className="text-red-300 hover:text-red-600"
-          onClick={() => handleCancel() || handleClose()}
+          onClick={handleClose}
         >
-          No, cancel!
+          NO
         </button>
       </Modal.Footer>
     </Modal>

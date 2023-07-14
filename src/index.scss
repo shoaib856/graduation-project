@@ -137,3 +137,9 @@ html {
     @apply border-amber-300 shadow-none checked:bg-emerald-400 checked:border-transparent checked:ring-transparent;
   }
 }
+.accordion-button {
+  @apply text-lg text-emerald-400 font-medium bg-white border-none w-full hover:bg-gray-200/50 focus:outline-none focus:ring-0;
+  &:not(.collapsed) {
+    @apply bg-gray-200/50;
+  }
+}

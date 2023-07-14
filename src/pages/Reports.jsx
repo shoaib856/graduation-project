@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import ListItems from "../components/ListItems";
 import useAuthValue from "../hooks/useAuthValue";
 import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
 
 const Reports = () => {
   document.title = "Dashboard | Reports";
