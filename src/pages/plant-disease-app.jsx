@@ -42,7 +42,6 @@ function PlantDiseaseApp() {
                     headers: {
                         "Content-Type": "multipart/form-data",
                     },
-
                 })
                 .then((res) => {
                     setResult(res.data);

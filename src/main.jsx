@@ -10,6 +10,7 @@ import { DevSupport } from "@react-buddy/ide-toolbox";
 import { ComponentPreviews, useInitial } from "./dev/index.js";
 import PurchaseFailed from "./pages/PurchaseFailed";
 import Payments from "./pages/Payments";
+import History from "./pages/History.jsx";
 
 // layouts
 const RootLayout = lazy(() => import("./layout/rootLayout"));
@@ -126,6 +127,10 @@ const router = createBrowserRouter([
             path: "reports",
             element: <Reports />,
           },
+          {
+            path: "history",
+            element: <History />,
+          }
         ],
       },
       {

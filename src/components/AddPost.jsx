@@ -33,7 +33,7 @@ const AddPost = ({
 
     const formik = useFormik({
         initialValues, onSubmit: async (values) => {
-            console.log(values);
+            // console.log(values);
             const handleAccept = (res) => {
                 toastMsg("success", res.data.message);
                 setShow(false);
@@ -49,6 +49,7 @@ const AddPost = ({
             };
             const controller = new AbortController();
             setAbortController(controller);
+
             if (edit) {
                 await axios
                     .put(`/post/${postID}`, values, {
@@ -67,20 +68,7 @@ const AddPost = ({
                     })
                     .then((res) => handleAccept(res))
                     .catch((err) => handleReject(err));
-                // await fetch("https://farm-vision.onrender.com/api/post", {
-                //     method: "POST",
-                //     body: values,
-                //     headers: {
-                //         "Content-Type": "multipart/form-data",
-                //         "x-auth-token": auth.token,
-                //     },
-                // }).then((res) => {
-                //     if (res.ok) {
-                //         handleAccept(res);
-                //     } else {
-                //         handleReject(res);
-                //     }
-                // });
+
             }
         }, validationSchema: Yup.object({
             content: Yup.string()
@@ -141,6 +129,7 @@ const AddPost = ({
                                 id="images"
                                 multiple
                                 onChange={(e) => {
+                                    console.log(Array.isArray(e.target.files))
                                     formik.setFieldValue("images", e.target.files);
                                 }}
                                 accept="image/*"
