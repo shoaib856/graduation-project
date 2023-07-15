@@ -1,6 +1,7 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Container, Nav, Navbar, Offcanvas } from "react-bootstrap";
 import useAuth from "../hooks/useAuth";
+import logo from "/logo.png";
 import { useEffect, useState } from "react";
 import Login from "./login";
 import {
