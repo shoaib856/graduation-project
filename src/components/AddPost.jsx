@@ -11,12 +11,7 @@ import AddItem from "./AddItem";
 import * as Yup from "yup";
 
 const AddPost = ({
-                     show,
-                     setShow,
-                     setRefetch,
-                     initialValues,
-                     edit,
-                     postID,
+                     show, setShow, setRefetch, initialValues, edit, postID,
                  }) => {
     const auth = useAuthValue();
     const [tags, setTags] = useState([]);
@@ -28,20 +23,17 @@ const AddPost = ({
     const validationSchema = Yup.object({
         tag: Yup.string()
             .required("Required")
-            .min(3, "Must be 3 characters or more"),
-        describtion: Yup.string()
+            .min(3, "Must be 3 characters or more"), describtion: Yup.string()
             .required("Required")
             .min(10, "Must be 10 characters or more"),
     });
     const initialValuesRequestedTag = {
-        tag: "",
-        describtion: "",
+        tag: "", describtion: "",
     };
 
     const formik = useFormik({
-        initialValues,
-        onSubmit: async (values) => {
-            // console.log(values);
+        initialValues, onSubmit: async (values) => {
+            console.log(values);
             const handleAccept = (res) => {
                 toastMsg("success", res.data.message);
                 setShow(false);
@@ -49,25 +41,19 @@ const AddPost = ({
                 formik.resetForm();
             };
             const handleReject = (err) => {
-                if (
-                    err.name === "AbortError" ||
-                    abortController?.signal.aborted ||
-                    err.name === "CanceledError"
-                ) {
+                if (abortController?.signal.aborted) {
                     console.log("aborted");
                 } else {
-                    console.log(err);
+                    console.error(err);
                 }
-                toastMsg("error", err.response.data.message);
             };
             const controller = new AbortController();
             setAbortController(controller);
             if (edit) {
                 await axios
                     .put(`/post/${postID}`, values, {
-                        signal: controller.signal,
-                        headers: {
-                            "x-auth-token": auth.token,
+                        signal: controller.signal, headers: {
+                            "x-auth-token": auth.token, "Content-Type": "multipart/form-data",
                         },
                     })
                     .then((res) => handleAccept(res))
@@ -75,16 +61,28 @@ const AddPost = ({
             } else {
                 await axios
                     .post("/post", values, {
-                        signal: controller.signal,
-                        headers: {
-                            "x-auth-token": auth.token,
+                        signal: controller.signal, headers: {
+                            "Content-Type": "multipart/form-data", "x-auth-token": auth.token,
                         },
                     })
                     .then((res) => handleAccept(res))
                     .catch((err) => handleReject(err));
+                // await fetch("https://farm-vision.onrender.com/api/post", {
+                //     method: "POST",
+                //     body: values,
+                //     headers: {
+                //         "Content-Type": "multipart/form-data",
+                //         "x-auth-token": auth.token,
+                //     },
+                // }).then((res) => {
+                //     if (res.ok) {
+                //         handleAccept(res);
+                //     } else {
+                //         handleReject(res);
+                //     }
+                // });
             }
-        },
-        validationSchema: Yup.object({
+        }, validationSchema: Yup.object({
             content: Yup.string()
                 .required("Required")
                 .min(10, "Must be 10 characters or more"),
@@ -114,136 +112,116 @@ const AddPost = ({
         getTags();
     }, [show]);
 
-    return (
-        <Modal
-            centered
-            show={show}
-            onHide={() => {
-                setShow(false);
-            }}
-        >
-            <Modal.Header className="flex justify-between items-center">
-                <Modal.Title>{edit ? "Edit" : "Add"} Post</Modal.Title>
-                <XCircleFill onClick={handleCancel} className="close-btn"/>
-            </Modal.Header>
-            <Modal.Body>
-                <form>
-                    <div className="form-group">
-                        <div className="flex items-center justify-between mb-1">
-                            <Form.Text muted>
-                                minimum characters 10, maximum characters 1000
-                            </Form.Text>
-                            <label
-                                type="button"
-                                className="flex items-center gap-1 cursor-pointer py-1 px-2 text-lg bg-gray-200 rounded-md hover:bg-gray-300 text-emerald-600"
-                            >
-                                <Link/>
-                                <span>{formik.values.images?.length}</span>
-                                <input
-                                    type="file"
-                                    name="images"
-                                    id="images"
-                                    multiple
-                                    onChange={(e) => {
-                                        formik.setFieldValue(
-                                            "images",
-                                            [...e.target.files].map((file) => file)
-                                        );
-                                    }}
-                                    accept="image/*"
-                                    className="hidden"
-                                />
-                            </label>
-                        </div>
-                        <textarea
-                            className="form-control form-field"
-                            id="content"
-                            {...formik.getFieldProps("content")}
-                            rows={3}
-                            minLength={10}
-                            maxLength={1000}
-                            placeholder="Enter Post Content"
-                        ></textarea>
+    return (<Modal
+        centered
+        show={show}
+        onHide={() => {
+            setShow(false);
+        }}
+    >
+        <Modal.Header className="flex justify-between items-center">
+            <Modal.Title>{edit ? "Edit" : "Add"} Post</Modal.Title>
+            <XCircleFill onClick={handleCancel} className="close-btn"/>
+        </Modal.Header>
+        <Modal.Body>
+            <form>
+                <div className="form-group">
+                    <div className="flex items-center justify-between mb-1">
+                        <Form.Text muted>
+                            minimum characters 10, maximum characters 1000
+                        </Form.Text>
+                        <label
+                            className="flex items-center gap-1 cursor-pointer py-1 px-2 text-lg bg-gray-200 rounded-md hover:bg-gray-300 text-emerald-600"
+                        >
+                            <Link/>
+                            <span>{formik.values.images?.length}</span>
+                            <input
+                                type="file"
+                                name="images"
+                                id="images"
+                                multiple
+                                onChange={(e) => {
+                                    formik.setFieldValue("images", e.target.files);
+                                }}
+                                accept="image/*"
+                                className="hidden"
+                            />
+                        </label>
                     </div>
-
-                    <fieldset className="mt-1 border p-2 rounded">
-                        <legend>Tags</legend>
-                        <ListGroup className="h-32 overflow-y-scroll">
-                            {error ? (
-                                <CustomizedAlert
-                                    variant={"danger"}
-                                    msg={"Error While Loading Tags"}
-                                    setRefetch={setRefetch}
-                                />
-                            ) : loading ? (
-                                <CustomizedAlert
-                                    variant="info"
-                                    msg={"Loading..."}
-                                    spinner={true}
-                                />
-                            ) : tags?.length > 0 ? (
-                                tags.map((tag) => (
-                                    <MarkMultiItems
-                                        key={tag.id}
-                                        formikProps={formik.getFieldProps}
-                                        itemDescription={tag.describtion}
-                                        itemName={tag.tag}
-                                        itemType={"tags"}
-                                        formikValues={formik.values}
-                                    />
-                                ))
-                            ) : (
-                                <Alert
-                                    variant="warning"
-                                    className="border-l-8 border-l-orange-500"
-                                >
-                                    No Tags Till Now!
-                                </Alert>
-                            )}
-                        </ListGroup>
-                    </fieldset>
-                </form>
-            </Modal.Body>
-            <Modal.Footer className="flex justify-between items-center">
-                <button
-                    disabled={formik.isSubmitting || !(formik.isValid && formik.dirty)}
-                    onClick={() => formik.submitForm()}
-                    className="form-btn"
-                >
-                    {formik.isSubmitting
-                        ? "Loading..."
-                        : (edit ? "Edit" : "Add") + " Post"}
-                </button>
-                <button
-                    onClick={handleCancel}
-                    className="text-red-300 hover:text-red-500"
-                >
-                    Cancel
-                </button>
-
-                <div>
-                    Can't find your tag?{" "}
-                    <button
-                        onClick={() => setShowRequest(true)}
-                        className="underline text-blue-500 hover:text-blue-700"
-                    >
-                        Request One
-                    </button>
-                    {showRequest && (
-                        <AddItem
-                            auth={auth}
-                            show={showRequest}
-                            setShow={setShowRequest}
-                            type={"tag"}
-                            request={true}
-                            initialValues={initialValuesRequestedTag}
-                            validationSchema={validationSchema}
-                        />
-                    )}
+                    <textarea
+                        className="form-control form-field"
+                        id="content"
+                        {...formik.getFieldProps("content")}
+                        rows={3}
+                        minLength={10}
+                        maxLength={1000}
+                        placeholder="Enter Post Content"
+                    ></textarea>
                 </div>
-            </Modal.Footer>
-        </Modal>
-    );
+
+                <fieldset className="mt-1 border p-2 rounded">
+                    <legend>Tags</legend>
+                    <ListGroup className="h-32 overflow-y-scroll">
+                        {error ? (<CustomizedAlert
+                            variant={"danger"}
+                            msg={"Error While Loading Tags"}
+                            setRefetch={setRefetch}
+                        />) : loading ? (<CustomizedAlert
+                            variant="info"
+                            msg={"Loading..."}
+                            spinner={true}
+                        />) : tags?.length > 0 ? (tags.map((tag) => (<MarkMultiItems
+                            key={tag.id}
+                            formikProps={formik.getFieldProps}
+                            itemDescription={tag.describtion}
+                            itemName={tag.tag}
+                            itemType={"tags"}
+                            formikValues={formik.values}
+                        />))) : (<Alert
+                            variant="warning"
+                            className="border-l-8 border-l-orange-500"
+                        >
+                            No Tags Till Now!
+                        </Alert>)}
+                    </ListGroup>
+                </fieldset>
+            </form>
+        </Modal.Body>
+        <Modal.Footer className="flex justify-between items-center">
+            <button
+                disabled={formik.isSubmitting || !(formik.isValid && formik.dirty)}
+                onClick={() => formik.submitForm()}
+                className="form-btn"
+            >
+                {formik.isSubmitting ? "Loading..." : (edit ? "Edit" : "Add") + " Post"}
+            </button>
+            <button
+                onClick={handleCancel}
+                className="text-red-300 hover:text-red-500"
+            >
+                Cancel
+            </button>
+
+            <div>
+                Can't find your tag?{" "}
+                <button
+                    onClick={() => setShowRequest(true)}
+                    className="underline text-blue-500 hover:text-blue-700"
+                >
+                    Request One
+                </button>
+                {showRequest && (<AddItem
+                    auth={auth}
+                    show={showRequest}
+                    setShow={setShowRequest}
+                    type={"tag"}
+                    request={true}
+                    initialValues={initialValuesRequestedTag}
+                    validationSchema={validationSchema}
+                />)}
+            </div>
+        </Modal.Footer>
+    </Modal>);
 };
 
 export default AddPost;

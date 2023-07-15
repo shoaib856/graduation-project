@@ -3,6 +3,7 @@ import ItemDetails from "../components/ItemDetails";
 import { useFormik } from "formik";
 import { toastMsg } from "../components/message-toast";
 import useAuthValue from "../hooks/useAuthValue";
+import axios from "../api/axios.js";
 
 const ReportDetails = ({ selectedReport, setSelectedReport, setRefetch }) => {
     const auth = useAuthValue();
@@ -54,7 +55,7 @@ const ReportDetails = ({ selectedReport, setSelectedReport, setRefetch }) => {
       setSelectedItem={setSelectedReport}
       setRefetch={setRefetch}
       type="report"
-      formik={null}
+      formik={updateReportFormik}
     />
   );
 };

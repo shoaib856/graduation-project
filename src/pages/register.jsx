@@ -12,7 +12,6 @@ import GeneralInfo from "../components/generalInfo";
 import { useFormik } from "formik";
 import LocationInfo from "../components/locationInfo";
 import SpecificInfo from "../components/specificInfo";
-import setCookie from "../hooks/setCookie";
 import * as Yup from "yup";
 import Stepper from "../components/stepper";
 
@@ -97,7 +96,7 @@ function Register() {
               token: res?.data.token,
               id: res?.data.user_id,
             });
-            sessionStorage.setItem(
+            localStorage.setItem(
               "auth",
               JSON.stringify({
                 role: res?.data.role,

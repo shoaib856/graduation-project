@@ -1,12 +1,11 @@
 import axios from "../api/axios";
 import { Modal } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toastMsg } from "./message-toast";
 import InputField from "./inputField";
 
 import { useState } from "react";
 import useAuth from "../hooks/useAuth.js";
-import setCookie from "../hooks/setCookie";
 import { BoxArrowInRight, XCircleFill } from "react-bootstrap-icons";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -45,7 +44,7 @@ function Login({ show, onHide }) {
             token: res?.data.token,
             id: res?.data.user_id,
           });
-          sessionStorage.setItem(
+          localStorage.setItem(
             "userIn",
             JSON.stringify({
               role: res?.data.role,
@@ -107,7 +106,6 @@ function Login({ show, onHide }) {
       <Modal.Footer>
         <div className="flex items-center gap-4">
           <button
-            variant="success"
             onClick={formik.handleSubmit}
             type="button"
             className="form-btn flex items-center gap-2"

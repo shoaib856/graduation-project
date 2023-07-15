@@ -23,7 +23,7 @@ const handleLogout = async (
       toastMsg("success", res.data.message);
       setLoading(false);
       setAuth(null);
-      sessionStorage.removeItem("userIn");
+      localStorage.removeItem("userIn");
     })
     .catch((err) => {
       setLoading(false);

@@ -1,5 +1,4 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import logo from "/logo.png";
 import { Container, Nav, Navbar, Offcanvas } from "react-bootstrap";
 import useAuth from "../hooks/useAuth";
 import { useEffect, useState } from "react";
@@ -12,13 +11,11 @@ import {
   ChatDotsFill,
   CreditCard,
   HouseFill,
-  PersonCircle,
   PersonFill,
   Speedometer,
   Telegram,
   XCircleFill,
 } from "react-bootstrap-icons";
-import { useRefetchState } from "../context/refetch";
 import { handleUserData } from "../context/userData";
 import getData from "../utils/getData";
 import handleLogout from "../utils/handleLogout";
@@ -33,7 +30,7 @@ function NavBar() {
   const [showLogin, setShowLogin] = useState(false);
   const [showList, setShowList] = useState(false);
   const [showNavList, setShowNavList] = useState(false);
-  const [refetch, setRefetch] = useRefetchState();
+  const [refetch, setRefetch] = useState(false);
   const [error, setError] = useState(false);
 
   useEffect(() => {
