@@ -1,4 +1,4 @@
-import {Alert, Badge, ListGroup} from "react-bootstrap";
+import {Alert, Badge, ListGroup, Placeholder} from "react-bootstrap";
 
 import {
     Camera2,
@@ -155,9 +155,9 @@ const ListItems = ({
                 <>
                     <Alert
                         variant="light"
-                        className="flex justify-between !pl-3 text-2xl text-emerald-600 sticky top-0 z-10"
+                        className="flex justify-between !pl-3 text-2xl text-emerald-600 sticky top-0 z-10 first-letter:uppercase"
                     >
-                        {type.at(0).toUpperCase() + type.slice(1) + "s"} list
+                        {type + "s"} list
                         <div className="flex gap-2">
                             <RequestedItems
                                 type={type}
@@ -193,13 +193,18 @@ const ListItems = ({
                             <RefreshBtn setRefetch={setRefetch}/>
                         </div>
                     </Alert>
-                    {loading ? (
-                        <CustomizedAlert
-                            msg={`Loading ${type + "s"}...`}
-                            variant="info"
-                            spinner={true}
-                        />
-                    ) : (
+                    {loading ? <div className="flex flex-col gap-2 text-gray-400">
+                        {[1, 2, 3, 4, 5].map((item) => {
+                            return (
+                                <div key={item} className="border px-3 py-2 rounded">
+                                    <Placeholder key={item} animation="glow">
+                                        <Placeholder xs={6}/>
+                                        <Placeholder xs={7}/>
+                                    </Placeholder>
+                                </div>
+                            );
+                        })}
+                    </div> : (
                         <>
                             <ListGroup className="gap-2">
                                 {error ? (

@@ -23,12 +23,11 @@ const ShowImage = ({
                             className={`rounded-full ${width60 && "w-60 h-60 sm:w-40 sm:h-40"} ${
                                 width40 && "w-40 h-40"
                             }`}
-                            src={URL.createObjectURL(formik?.values?.image)}
+                            src={URL?.createObjectURL(formik?.values?.image)}
                             alt="image"
                             onMouseEnter={() => setIsHover(true)}
                             onMouseLeave={() => setIsHover(false)}
                         />
-
                         <div
                             className={`absolute bottom-0 right-0 ${width60 && "w-12 h-12"} ${
                                 width40 && "w-10 h-10"

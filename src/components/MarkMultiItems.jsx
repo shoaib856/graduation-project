@@ -23,7 +23,7 @@ const MarkMultiItems = ({
             value={itemName}
             checked={formikValues[itemType].includes(itemName)}
           />
-          <Form.Check.Label className="grow cursor-pointer">
+          <Form.Check.Label className="flex-1 cursor-pointer  first-letter:uppercase">
             {itemName}
           </Form.Check.Label>
 

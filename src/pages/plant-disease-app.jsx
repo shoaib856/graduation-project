@@ -1,6 +1,4 @@
 import React, {useEffect, useState} from "react";
-
-// import { showResult } from "../components/showResult";
 import axiosImgModel from "../api/axiosImgModel.js";
 import axios from "../api/axios.js";
 import useAuthValue from "../hooks/useAuthValue.js";

@@ -81,7 +81,7 @@ const Devices = () => {
             <ListGroup className="w-full gap-2">
                 {loading ? (
                     <div className="flex flex-col gap-2">
-                        {[1, 2, 3, 4, 5, 6].map((item) => {
+                        {[1, 2, 3, 4, 5].map((item) => {
                             return (
                                 <div key={item} className="border px-3 py-2 rounded">
                                     <Placeholder key={item} animation="glow">

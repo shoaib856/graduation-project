@@ -51,16 +51,14 @@ const ItemDetails = ({
                     className="close-btn"
                     onClick={() => setSelectedItem(null)}
                 />
-                <h1 className="text-3xl font-semibold">
-                    {type[0]?.toUpperCase() + type.slice(1)} Details
+                <h1 className="text-3xl font-semibold first-letter:uppercase">
+                    {type} Details
                 </h1>
             </div>
             <div className="flex items-center gap-2">
           <span>
             Created at:
-              {`${new Date(selectedItem?.createdAt).toDateString("en-Us", {
-                  year: "numeric", month: "short", day: "numeric",
-              })}`}
+              {new Date(selectedItem?.createdAt).toDateString()}
           </span>
                 <button
                     onClick={() => setShowDelete(true)}

@@ -3,9 +3,9 @@ import {Accordion} from "react-bootstrap";
 
 const CustomAccordion = ({header, children,eventKey}) => {
     return (
-        <Accordion.Item className={"!shadow-none"} eventKey={eventKey}>
+        <Accordion.Item className={"!shadow-none relative"} eventKey={eventKey}>
             <Accordion.Header>{header}</Accordion.Header>
-            <Accordion.Body>
+            <Accordion.Body className={"relative"}>
                 {children}
             </Accordion.Body>
         </Accordion.Item>
