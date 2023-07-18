@@ -9,6 +9,7 @@ import useAuthValue from "../hooks/useAuthValue";
 import CustomizedAlert from "./CustomizedAlert";
 import AddItem from "./AddItem";
 import * as Yup from "yup";
+import filesToBase64 from "../utils/fromImgToBase64.js";
 
 const AddPost = ({
                      show, setShow, setRefetch, initialValues, edit, postID,
@@ -33,7 +34,7 @@ const AddPost = ({
 
     const formik = useFormik({
         initialValues, onSubmit: async (values) => {
-            // console.log(values);
+            console.log(values);
             const handleAccept = (res) => {
                 toastMsg("success", res.data.message);
                 setShow(false);
@@ -49,12 +50,13 @@ const AddPost = ({
             };
             const controller = new AbortController();
             setAbortController(controller);
-
             if (edit) {
                 await axios
                     .put(`/post/${postID}`, values, {
-                        signal: controller.signal, headers: {
-                            "x-auth-token": auth.token, "Content-Type": "multipart/form-data",
+                        signal: controller.signal,
+                        headers: {
+                            "x-auth-token": auth.token,
+                            "Content-Type": "application/json",
                         },
                     })
                     .then((res) => handleAccept(res))
@@ -62,13 +64,14 @@ const AddPost = ({
             } else {
                 await axios
                     .post("/post", values, {
-                        signal: controller.signal, headers: {
-                            "Content-Type": "multipart/form-data", "x-auth-token": auth.token,
+                        signal: controller.signal,
+                        headers: {
+                            "Content-Type": "application/json",
+                            "x-auth-token": auth.token,
                         },
                     })
                     .then((res) => handleAccept(res))
                     .catch((err) => handleReject(err));
-
             }
         }, validationSchema: Yup.object({
             content: Yup.string()
@@ -93,12 +96,22 @@ const AddPost = ({
             .catch((err) => {
                 setLoading(false);
                 setError(true);
+                console.error(err);
                 // toastMsg("error", err.response.data.message);
             });
     };
     useEffect(() => {
         getTags();
     }, [show]);
+
+    const handleChange = (e) => {
+        const files = e.target.files;
+        filesToBase64(files).then((result) => {
+            formik.setFieldValue("images", result);
+        }).catch((err) => {
+            console.error(err);
+        });
+    };
 
     return (<Modal
         centered
@@ -119,8 +132,7 @@ const AddPost = ({
                             minimum characters 10, maximum characters 1000
                         </Form.Text>
                         <label
-                            className="flex items-center gap-1 cursor-pointer py-1 px-2 text-lg bg-gray-200 rounded-md hover:bg-gray-300 text-emerald-600"
-                        >
+                            className="flex items-center gap-1 cursor-pointer py-1 px-2 text-lg bg-gray-200 rounded-md hover:bg-gray-300 text-emerald-600">
                             <Link/>
                             <span>{formik.values.images?.length}</span>
                             <input
@@ -128,10 +140,7 @@ const AddPost = ({
                                 name="images"
                                 id="images"
                                 multiple
-                                onChange={(e) => {
-                                    console.log(Array.isArray(e.target.files))
-                                    formik.setFieldValue("images", e.target.files);
-                                }}
+                                onChange={handleChange}
                                 accept="image/*"
                                 className="hidden"
                             />
