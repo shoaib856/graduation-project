@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="flex items-center mb-4">
         <img src={logo} alt="Logo" className="h-10 mr-2" />
         <span className="font-bold text-lg">
-          <strong className="text-4xl text-white">Plant</strong>hie
+          <strong className="text-4xl text-white first-letter:uppercase">farm</strong>vision
         </span>
       </div>
       <div className="flex justify-center items-center mx-4">

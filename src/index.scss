@@ -62,7 +62,7 @@ html {
   @apply fixed left-0 top-0 w-full h-full z-[10000] bg-white/5 flex justify-center items-center backdrop-blur;
 }
 .full-height {
-  min-height: calc(100vh - 212px);
+  min-height: calc(100vh - 224px);
   @apply p-1 flex justify-center items-center bg-slate-200/50;
 }
 .hidden-animation {

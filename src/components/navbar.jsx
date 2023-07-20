@@ -56,10 +56,10 @@ function NavBar() {
           <Link to={"./"} className="flex items-center">
             <img src={logo} alt="logo" className="w-[50px] sm:w-[30px]" />
             <span>
-              <strong className="text-emerald-400 text-4xl sm:text-2xl">
-                Plant
+              <strong className="text-emerald-400 text-4xl sm:text-2xl first-letter:uppercase">
+                farm
               </strong>
-              hie
+              vision
             </span>
           </Link>
         </Navbar.Brand>
@@ -77,8 +77,8 @@ function NavBar() {
         >
           <Offcanvas.Header>
             <Offcanvas.Title>
-              <strong className="text-4xl">Plant</strong>
-              <span className="text-black">hie</span>
+              <strong className="text-4xl first-letter:uppercase">farm</strong>
+              <span className="text-black">vision</span>
             </Offcanvas.Title>
             <XCircleFill
               className="close-btn"

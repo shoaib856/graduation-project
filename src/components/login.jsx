@@ -31,7 +31,6 @@ function Login({ show, onHide }) {
     onSubmit: async (values) => {
       const controller = new AbortController();
       setAbortController(controller);
-
       await axios
         .post("/login", values, {
           signal: controller.signal,
@@ -52,6 +51,7 @@ function Login({ show, onHide }) {
               id: res?.data.user_id,
             })
           );
+            onHide();
         })
         .catch((err) => {
           if (

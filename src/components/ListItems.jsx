@@ -155,7 +155,7 @@ const ListItems = ({
                 <>
                     <Alert
                         variant="light"
-                        className="flex justify-between !pl-3 text-2xl text-emerald-600 sticky top-0 z-10 first-letter:uppercase"
+                        className="flex justify-between !pl-3 text-2xl text-emerald-600 sticky top-0 z-10 uppercase"
                     >
                         {type + "s"} list
                         <div className="flex gap-2">
