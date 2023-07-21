@@ -36,7 +36,7 @@ const Post = ({
   const [disliked, setDisliked] = useState(userDisLike);
   const [numDislikes, setNumDislikes] = useState(post?.numberOfDisLikes);
   const [showComments, setShowComments] = useState(false);
-  const [loadingDel, setLoadingDel] = useState(true);
+  const [loadingDel, setLoadingDel] = useState(false);
   const [numberOfComments, setNumberOfComments] = useState(
     numComments || post?.numberOfComments
   );
@@ -99,15 +99,21 @@ const Post = ({
         setLoadingDel(false);
       })
       .catch((err) => {
-        if (err.name === "AbortError") return;
+        if (abortController?.signal.aborted) {
+          console.log("aborted");
+        }
         setLoadingDel(false);
         console.error(err);
       });
   };
+  const handleCancel = () => {
+    abortController?.abort();
+    setShowDelete(false);
+  };
 
   return (
     <div className="relative max-w-2xl w-full bg-white shadow-md mx-auto p-3 rounded-md mb-2">
-      <div className="flex justify-between items-center mb-2 md:flex-col md:items-start md:gap-2">
+      <div className="bg-black/5 p-2 rounded flex justify-between items-center mb-2 md:flex-col md:items-start md:gap-2">
         <div className="flex flex-col items-start">
           <h3 className="text-xl font-semibold">
             {[user?.firstName, user?.lastName].join(" ")}
@@ -161,6 +167,7 @@ const Post = ({
                 show={showDelete}
                 setShow={setShowDelete}
                 loading={loadingDel}
+                handleCancel={handleCancel}
               />
               <button
                 onClick={() => setShowDelete(true)}
@@ -183,17 +190,19 @@ const Post = ({
               </span>
             ))}
         </p>
-        <Carousel className="border bg-black/20 p-0.5 !border-emerald-700 rounded mt-2 !max-w-full">
-          {images?.map((image, i) => (
-            <Carousel.Item key={i}>
-              <img
-                src={URL.createObjectURL(base64toImg(image))}
-                alt="post"
-                className="w-72 !rounded mx-auto"
-              />
-            </Carousel.Item>
-          ))}
-        </Carousel>
+        {images?.length > 0 && (
+          <Carousel className="border bg-black/20 p-0.5 !border-emerald-700 rounded mt-2 !max-w-full">
+            {images?.map((image, i) => (
+              <Carousel.Item key={i}>
+                <img
+                  src={URL.createObjectURL(base64toImg(image))}
+                  alt="post"
+                  className="w-72 mx-auto"
+                />
+              </Carousel.Item>
+            ))}
+          </Carousel>
+        )}
       </div>
       <span className="absolute bottom-2 right-2 text-xs text-gray-400">
         {daysFromNow(post?.createdAt)}
