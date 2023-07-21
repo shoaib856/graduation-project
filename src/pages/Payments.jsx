@@ -13,6 +13,7 @@ import {
 } from "react-bootstrap-icons";
 import WarningMessage from "../components/warningMessage";
 import CustomizedAlert from "../components/CustomizedAlert";
+import { toastMsg } from "../components/message-toast";
 
 const Payments = () => {
   const auth = useAuthValue();
@@ -69,6 +70,8 @@ const Payments = () => {
           console.log("aborted");
           return;
         }
+        toastMsg("error", err.response.data.message);
+        setShowDelete(false);
         console.error(err);
       });
   };
@@ -90,6 +93,7 @@ const Payments = () => {
       .catch((err) => {
         setLoadingPayment(false);
         setRefetch(false);
+        toastMsg("error", err.response.data.message);
         console.error(err);
       });
   };
