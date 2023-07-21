@@ -9,7 +9,7 @@ import useAuthValue from "../hooks/useAuthValue";
 import CustomizedAlert from "./CustomizedAlert";
 import AddItem from "./AddItem";
 import * as Yup from "yup";
-import filesToBase64 from "../utils/fromImgToBase64.js";
+import InputField from "./inputField";
 
 const AddPost = ({
   show,
@@ -34,6 +34,7 @@ const AddPost = ({
       .required("Required")
       .min(10, "Must be 10 characters or more"),
   });
+
   const initialValuesRequestedTag = {
     tag: "",
     describtion: "",
@@ -42,13 +43,21 @@ const AddPost = ({
   const formik = useFormik({
     initialValues,
     onSubmit: async (values) => {
-      console.log(values);
       let formData = new FormData();
+
       formData.append("content", values.content);
-      for (let i = 0; i < values.images.length; i++) {
-        formData.append("images", values.images[i]);
+
+      for (let i = 0; i < values.images?.length; i++) {
+        if (values.images[i].name) {
+          formData.append("images", values.images[i]);
+        }
       }
-      formData.append("tags", JSON.stringify(values.tags));
+
+      for (let i = 0; i < values.tags?.length; i++) {
+        formData.append("tags", values.tags[i]);
+      }
+      console.log(formData.getAll("tags"));
+      console.log(formData.getAll("images"));
 
       const handleAccept = (res) => {
         toastMsg("success", res.data.message);
@@ -70,7 +79,7 @@ const AddPost = ({
           .put(`/post/${postID}`, formData, {
             signal: controller.signal,
             headers: {
-              "x-auth-token": auth.token,
+              "x-auth-token": auth?.token,
               "Content-Type": "multipart/form-data",
             },
           })
@@ -82,7 +91,7 @@ const AddPost = ({
             signal: controller.signal,
             headers: {
               "Content-Type": "multipart/form-data",
-              "x-auth-token": auth.token,
+              "x-auth-token": auth?.token,
             },
           })
           .then((res) => handleAccept(res))
@@ -95,11 +104,13 @@ const AddPost = ({
         .min(10, "Must be 10 characters or more"),
     }),
   });
+  
   const handleCancel = () => {
     abortController?.abort();
     setShow(false);
     formik.resetForm();
   };
+
   const getTags = async () => {
     setLoading(true);
     await axios
@@ -113,7 +124,6 @@ const AddPost = ({
         setLoading(false);
         setError(true);
         console.error(err);
-        // toastMsg("error", err.response.data.message);
       });
   };
   useEffect(() => {
@@ -158,15 +168,16 @@ const AddPost = ({
                 />
               </label>
             </div>
-            <textarea
-              className="form-control form-field"
+            <InputField
+              formikProps={formik.getFieldProps}
+              Label=""
               id="content"
-              {...formik.getFieldProps("content")}
-              rows={3}
-              minLength={10}
-              maxLength={1000}
+              type="text"
+              errors={formik.errors}
+              touched={formik.touched}
+              as={"textarea"}
               placeholder="Enter Post Content"
-            ></textarea>
+            />
           </div>
 
           <fieldset className="mt-1 border p-2 rounded">

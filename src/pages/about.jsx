@@ -27,6 +27,7 @@ function About() {
       role: "Machine Learning Engineer",
       imageUrl: moGad,
       linkedin: "https://www.linkedin.com/in/mohamed-gad-0808a41b3",
+      gmail: "gad43617@gmail.com",
     },
     {
       name: "Mohamed Tawfik",

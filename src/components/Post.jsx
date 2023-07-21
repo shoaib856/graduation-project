@@ -14,6 +14,7 @@ import AddPost from "./AddPost";
 import WarningMessage from "./warningMessage";
 import { toastMsg } from "./message-toast";
 import base64toImg from "../utils/fromBase64ToImg";
+import { Carousel } from "react-bootstrap";
 
 const Post = ({
   post,
@@ -83,27 +84,26 @@ const Post = ({
         // toastMsg("error", err.response.data.message);
       });
   };
-  const handleDelete = async()=>{
+  const handleDelete = async () => {
     const controller = new AbortController();
     setAbortController(controller);
     setLoadingDel(true);
-    await
-      axios
-        .delete("/post/" + post.id, {
-          signal: controller.signal,
-          headers: { "x-auth-token": auth.token },
-        })
-        .then(() => {
-          toastMsg("success", "Post deleted");
-          setRefetch(true);
-          setLoadingDel(false);
-        })
-        .catch((err) => {
-          if (err.name === "AbortError") return;
-          setLoadingDel(false);
-          console.error(err);
-        });
-  }
+    await axios
+      .delete("/post/" + post.id, {
+        signal: controller.signal,
+        headers: { "x-auth-token": auth.token },
+      })
+      .then(() => {
+        toastMsg("success", "Post deleted");
+        setRefetch(true);
+        setLoadingDel(false);
+      })
+      .catch((err) => {
+        if (err.name === "AbortError") return;
+        setLoadingDel(false);
+        console.error(err);
+      });
+  };
 
   return (
     <div className="relative max-w-2xl w-full bg-white shadow-md mx-auto p-3 rounded-md mb-2">
@@ -139,7 +139,11 @@ const Post = ({
           {post.UserId === auth.id && (
             <div className="flex gap-2">
               <AddPost
-                initialValues={{ content: post.content, tags: tags }}
+                initialValues={{
+                  content: post.content,
+                  tags: tags,
+                  images: images,
+                }}
                 show={showEdit}
                 setShow={setShowEdit}
                 edit={true}
@@ -157,7 +161,6 @@ const Post = ({
                 show={showDelete}
                 setShow={setShowDelete}
                 loading={loadingDel}
-
               />
               <button
                 onClick={() => setShowDelete(true)}
@@ -169,7 +172,7 @@ const Post = ({
           )}
         </div>
       </div>
-      <div className="border !border-emerald-700 py-1 px-2 rounded">
+      <div className="py-1 px-2">
         <p className="break-words break-all">
           {post?.content
             .trim()
@@ -180,16 +183,17 @@ const Post = ({
               </span>
             ))}
         </p>
-        <div>
+        <Carousel className="border bg-black/20 p-0.5 !border-emerald-700 rounded mt-2 !max-w-full">
           {images?.map((image, i) => (
-            <img
-              key={i}
-              src={URL.createObjectURL(base64toImg(image))}
-              alt="post"
-              className="w-full h-48 object-cover rounded-md mt-2"
-            />
+            <Carousel.Item key={i}>
+              <img
+                src={URL.createObjectURL(base64toImg(image))}
+                alt="post"
+                className="w-72 !rounded mx-auto"
+              />
+            </Carousel.Item>
           ))}
-        </div>
+        </Carousel>
       </div>
       <span className="absolute bottom-2 right-2 text-xs text-gray-400">
         {daysFromNow(post?.createdAt)}
