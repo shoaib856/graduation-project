@@ -49,7 +49,7 @@ const AddPost = ({
         formData.append("images", values.images[i]);
       }
       formData.append("tags", JSON.stringify(values.tags));
-      
+
       const handleAccept = (res) => {
         toastMsg("success", res.data.message);
         setShow(false);
@@ -122,13 +122,7 @@ const AddPost = ({
 
   const handleChange = (e) => {
     const files = e.target.files;
-    filesToBase64(files)
-      .then((result) => {
-        formik.setFieldValue("images", result);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    formik.setFieldValue("images", files);
   };
 
   return (
