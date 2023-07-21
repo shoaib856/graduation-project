@@ -35,11 +35,13 @@ const Post = ({
   const [disliked, setDisliked] = useState(userDisLike);
   const [numDislikes, setNumDislikes] = useState(post?.numberOfDisLikes);
   const [showComments, setShowComments] = useState(false);
+  const [loadingDel, setLoadingDel] = useState(true);
   const [numberOfComments, setNumberOfComments] = useState(
     numComments || post?.numberOfComments
   );
   const [loading, setLoading] = useState(false);
   const auth = useAuthValue();
+  const [abortController, setAbortController] = useState(null);
 
   const handleLike = async () => {
     setLoading(true);
@@ -81,9 +83,30 @@ const Post = ({
         // toastMsg("error", err.response.data.message);
       });
   };
+  const handleDelete = async()=>{
+    const controller = new AbortController();
+    setAbortController(controller);
+    setLoadingDel(true);
+    await
+      axios
+        .delete("/post/" + post.id, {
+          signal: controller.signal,
+          headers: { "x-auth-token": auth.token },
+        })
+        .then(() => {
+          toastMsg("success", "Post deleted");
+          setRefetch(true);
+          setLoadingDel(false);
+        })
+        .catch((err) => {
+          if (err.name === "AbortError") return;
+          setLoadingDel(false);
+          console.error(err);
+        });
+  }
 
   return (
-    <div className="relative max-w-2xl w-full bg-emerald-200 mx-auto p-3 rounded-md mb-2">
+    <div className="relative max-w-2xl w-full bg-white shadow-md mx-auto p-3 rounded-md mb-2">
       <div className="flex justify-between items-center mb-2 md:flex-col md:items-start md:gap-2">
         <div className="flex flex-col items-start">
           <h3 className="text-xl font-semibold">
@@ -130,21 +153,11 @@ const Post = ({
                 Edit
               </button>
               <WarningMessage
-                process={() => {
-                  axios
-                    .delete("/post/" + post.id, {
-                      headers: { "x-auth-token": auth.token },
-                    })
-                    .then(() => {
-                      toastMsg("success", "Post deleted");
-                      setRefetch(true);
-                    })
-                    .catch((err) => {
-                      console.log(err);
-                    });
-                }}
+                process={handleDelete}
                 show={showDelete}
                 setShow={setShowDelete}
+                loading={loadingDel}
+
               />
               <button
                 onClick={() => setShowDelete(true)}

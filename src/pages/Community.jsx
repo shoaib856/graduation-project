@@ -41,7 +41,7 @@ const Community = () => {
                 setLoading(false);
                 setError(true);
                 setRefetch(false);
-                console.log(err);
+                console.error(err);
             });
     };
     useEffect(() => {
@@ -74,9 +74,7 @@ const Community = () => {
             setFilteredPostsByUser([]);
         }
     }, [selectedUser]);
-    useEffect(() => {
-        console.log(posts);
-    }, [posts]);
+
 
     return (
         <Container className="self-start">
@@ -126,10 +124,10 @@ const Community = () => {
             </div>
 
             {loading ? (
-                [1, 2, 3, 4, 5, 6].map((i) => (
+                [1, 2].map((i) => (
                     <div
                         key={i}
-                        className="max-w-2xl w-full mx-auto rounded mb-1 p-4 bg-emerald-200"
+                        className="max-w-2xl w-full mx-auto rounded mb-1 p-4 bg-white shadow-md"
                     >
                         <Placeholder as="p" animation="glow">
                             <Placeholder xs={4}/>
