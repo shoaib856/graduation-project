@@ -5,7 +5,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Signika:wght@400;500;700&display=swap");
 
 * {
-  @apply font-Signika;
+  @apply font-Signika scrollbar-thin;
 }
 html {
   @apply bg-slate-200/50;
@@ -96,6 +96,9 @@ html {
 .form-btn {
   @apply md:px-2 md:text-xs text-white px-4 py-1 rounded-md bg-emerald-400 border-none shadow-none active:bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-200 disabled:text-emerald-900 font-bold text-lg;
 }
+.modal {
+  @apply backdrop-blur-md;
+}
 
 .animated {
   animation-duration: 0.5s;
@@ -141,5 +144,15 @@ html {
   @apply text-lg text-emerald-400 font-medium bg-white border-none w-full hover:bg-gray-200/50 focus:outline-none focus:ring-0;
   &:not(.collapsed) {
     @apply bg-gray-200/50;
+  }
+}
+.for-last-element{
+  &:last-child {
+    .align-last-sign{
+      @apply -mt-8
+    }
+    .last-sign{
+        @apply hidden;
+    }
   }
 }

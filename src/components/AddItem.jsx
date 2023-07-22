@@ -66,6 +66,7 @@ const AddItem = ({
       }, 2000);
     }
   }, [msg]);
+
   return (
     <Modal centered show={show} onHide={onHide}>
       <Modal.Header className="flex justify-between items-center">

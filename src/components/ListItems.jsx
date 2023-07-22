@@ -45,39 +45,7 @@ const ListItems = ({
     const [itemRequested, setItemRequested] = useState([]);
     const [newRequest, setNewRequest] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
-    const [showDelete, setShowDelete] = useState(false);
-    const [abortController, setAbortController] = useState(null);
-    const [id, setId] = useState(null);
-    const user = useUserData();
 
-    const deleteItem = async (id) => {
-        const controller = new AbortController();
-        setAbortController(controller);
-        setLoading(true);
-        await axios
-            .delete(`/${type}/${id}`, {
-                signal: controller.signal,
-                headers: {
-                    "x-auth-token": auth?.token,
-                },
-            })
-            .then(() => {
-                toastMsg("success", "Item deleted successfully");
-                setRefetch(true);
-                setLoading(false);
-                setShowDelete(false);
-            })
-            .catch((err) => {
-                console.log(err);
-                setLoading(false);
-                if (abortController?.signal.aborted) return;
-                setRefetch(false);
-                setError(true);
-            });
-    };
-    const handleCancel = () => {
-        abortController?.abort();
-    };
     const getData = async () => {
         setLoading(true);
         await axios
@@ -95,6 +63,7 @@ const ListItems = ({
             })
             .catch((err) => {
                 setLoading(false);
+                setRefetch(false);
                 setError(true);
                 console.error(err);
             });
@@ -194,7 +163,7 @@ const ListItems = ({
                         </div>
                     </Alert>
                     {loading ? <div className="flex flex-col gap-2 text-gray-400">
-                        {[1, 2, 3, 4, 5].map((item) => {
+                        {[1, 2, 3].map((item) => {
                             return (
                                 <div key={item} className="border px-3 py-2 rounded">
                                     <Placeholder key={item} animation="glow">
@@ -226,92 +195,17 @@ const ListItems = ({
                                     />
                                 ) : (
                                     items?.map((item) => (
-                                        <ListGroup.Item
+                                        <ItemInList
                                             key={item.id}
-                                            className="flex justify-between items-center gap-2 flex-wrap rounded border py-1 non-emerald-hover"
-                                        >
-                                            <div className="details !break-words !break-all">
-                                                <h2 className="flex border-b-2 border-emerald-400 items-center gap-2 text-2xl md:text-xl font-bold">
-                                                    {item.type === "error" ? (
-                                                        <ExclamationCircleFill className="text-red-600"/>
-                                                    ) : item.type === "feedback" ? (
-                                                        <ChatLeftTextFill className="text-blue-600"/>
-                                                    ) : item.type === "suggestion" ? (
-                                                        <LightbulbFill className="text-yellow-600"/>
-                                                    ) : item.type === "video" ? (
-                                                        <CameraVideoFill className="text-cyan-600"/>
-                                                    ) : item.type === "image" ? (
-                                                        <Camera2 className="text-indigo-600"/>
-                                                    ) : (
-                                                        <TagFill className="text-emerald-600"/>
-                                                    )}
-                                                    {item[type] || item.title}
-                                                    {item?.user && (
-                                                        <sub className="text-sm text-gray-500 font-thin">
-                                                            ({item.user.userName})
-                                                        </sub>
-                                                    )}
-                                                </h2>
-                                                <div>
-                                                    <p
-                                                        className={`text-lg md:text-base max-w-xs w-full break-words break-all`}
-                                                    >
-                                                        {item.describtion.split("\n").map((line, i) => (
-                                                            <span key={i} className="block">
-                                {line}
-                              </span>
-                                                        ))}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-2">
-                                                {showPrice && (
-                                                    <Badge
-                                                        bg="success"
-                                                        className="text-base md:text-sm p-1"
-                                                    >
-                                                        {item.price}$
-                                                    </Badge>
-                                                )}
-                                                {showDelete && id === item.id && (
-                                                    <WarningMessage
-                                                        loading={loading}
-                                                        show={showDelete}
-                                                        setShow={setShowDelete}
-                                                        process={deleteItem}
-                                                        handleCancel={handleCancel}
-                                                        param={id}
-                                                    />
-                                                )}
-                                                <button
-                                                    onClick={() => {
-                                                        setShowDelete(true);
-                                                        setId(item.id);
-                                                    }}
-                                                    className="text-2xl disabled:bg-red-200 bg-red-500 hover:bg-red-600 text-white p-1 rounded"
-                                                    disabled={
-                                                        ((auth?.role === "admin" &&
-                                                                item?.user?.role === "admin") ||
-                                                            item?.user?.role === "superAdmin") &&
-                                                        user?.userName !== item?.user?.userName
-                                                    }
-                                                >
-                                                    <Trash/>
-                                                </button>
-
-                                                {!detailed && (
-                                                    <button
-                                                        onClick={() => {
-                                                            setSelectedItem(item);
-                                                        }}
-                                                        className="bg-emerald-400 hover:bg-emerald-600 text-white badge text-2xl p-1"
-                                                    >
-                                                        <ThreeDotsVertical/>
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </ListGroup.Item>
+                                            setRefetch={setRefetch}
+                                            setError={setError}
+                                            auth={auth}
+                                            type={type}
+                                            setSelectedItem={setSelectedItem}
+                                            item={item}
+                                            showPrice={showPrice}
+                                            detailed={detailed}
+                                        />
                                     ))
                                 )}
                             </ListGroup>
@@ -322,5 +216,130 @@ const ListItems = ({
         </>
     );
 };
+
+const ItemInList = ({
+                        type,
+                        detailed,
+                        auth,
+                        item,
+                        showPrice,
+                        setSelectedItem,
+                        setError,
+                        setRefetch,
+                    }) => {
+    const [showDelete, setShowDelete] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const user = useUserData();
+    const [abortController, setAbortController] = useState(null);
+    const deleteItem = async () => {
+        const controller = new AbortController();
+        setAbortController(controller);
+        setLoading(true);
+        await axios
+            .delete(`/${type}/${item.id}`, {
+                signal: controller.signal,
+                headers: {
+                    "x-auth-token": auth?.token,
+                },
+            })
+            .then(() => {
+                toastMsg("success", "Item deleted successfully");
+                setRefetch(true);
+                setLoading(false);
+                setShowDelete(false);
+            })
+            .catch((err) => {
+                console.log(err);
+                setLoading(false);
+                if (abortController?.signal.aborted) return;
+                setRefetch(false);
+                setError(true);
+            });
+    };
+    const handleCancel = () => {
+        abortController?.abort();
+    };
+
+    return (
+        <ListGroup.Item
+
+            className="flex justify-between items-center gap-2 flex-wrap rounded border py-1 non-emerald-hover"
+        >
+            <div className="details !break-words !break-all">
+                <h2 className="mb-2 flex border-b-2 border-emerald-400 items-center gap-2 text-2xl md:text-xl font-bold">
+                    {item.type === "error" ? (
+                        <ExclamationCircleFill className="text-red-600"/>
+                    ) : item.type === "feedback" ? (
+                        <ChatLeftTextFill className="text-blue-600"/>
+                    ) : item.type === "suggestion" ? (
+                        <LightbulbFill className="text-yellow-600"/>
+                    ) : item.type === "video" ? (
+                        <CameraVideoFill className="text-cyan-600"/>
+                    ) : item.type === "image" ? (
+                        <Camera2 className="text-indigo-600"/>
+                    ) : (
+                        <TagFill className="text-emerald-600"/>
+                    )}
+                    {item[type] || item.title}
+                    {item?.user && (
+                        <sub className="text-sm text-gray-500 font-thin">
+                            ({item.user.userName})
+                        </sub>
+                    )}
+                </h2>
+                <div>
+                    {
+                        item.numberOfPosts && (
+                            <span className={"text-gray-400 capitalize"}>number of posts: {item?.numberOfPosts}</span>
+                        )
+                    }
+                    <p
+                        className={`text-lg md:text-base max-w-xs w-full break-words break-all`}
+                    >
+                        {item.describtion.split("\n").map((line, i) => (
+                            <span key={i} className="block">{line}</span>
+                        ))}
+                    </p>
+                </div>
+            </div>
+            <div className="flex items-center gap-2">
+                {showPrice && (
+                    <Badge className="!bg-emerald-400 text-base md:text-sm p-1">
+                        ${item.price}
+                    </Badge>
+                )}
+                <WarningMessage
+                    loading={loading}
+                    show={showDelete}
+                    setShow={setShowDelete}
+                    process={deleteItem}
+                    handleCancel={handleCancel}
+                />
+                <button
+                    onClick={() => setShowDelete(true)}
+                    className="text-2xl disabled:bg-red-200 bg-red-500 hover:bg-red-600 text-white p-1 rounded"
+                    disabled={
+                        ((auth?.role === "admin" &&
+                                item?.user?.role === "admin") ||
+                            item?.user?.role === "superAdmin") &&
+                        user?.userName !== item?.user?.userName
+                    }
+                >
+                    <Trash/>
+                </button>
+                {!detailed && (
+                    <button
+                        onClick={() => {
+                            setSelectedItem(item);
+                        }}
+                        className="bg-emerald-400 hover:bg-emerald-600 text-white badge text-2xl p-1"
+                    >
+                        <ThreeDotsVertical/>
+                    </button>
+                )}
+            </div>
+        </ListGroup.Item>
+    )
+}
 
 export default ListItems;
