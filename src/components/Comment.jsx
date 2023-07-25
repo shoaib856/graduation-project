@@ -269,7 +269,7 @@ const Comment = ({
                                                 <div className={""}>
                                                     {comments.slice().reverse().map((reply) =>
                                                         reply.comment.CommentId === comment.comment.id ? (
-                                                            <div className="flex items-center pl-4 for-last-element">
+                                                            <div key={reply.comment.commentId} className="flex items-center pl-4 for-last-element">
                                                                 <div className={"-mt-1.5"}>
                                                                     <div
                                                                         className="align-last-sign w-6 h-10 self-start rounded-bl-xl border-l-2 border-b-2"></div>

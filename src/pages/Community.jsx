@@ -75,9 +75,6 @@ const Community = () => {
     }
   }, [selectedUser]);
 
-  useEffect(() => {
-    console.log(posts);
-  }, [posts]);
   return (
     <Container className="self-start">
       <AddPost
