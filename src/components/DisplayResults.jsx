@@ -4,17 +4,22 @@ import {Download, XCircleFill} from "react-bootstrap-icons";
 import base64ToImg from "../utils/fromBase64ToImg.js";
 import CustomAccordion from "./CustomAccordion.jsx";
 import axiosImgModel from "../api/axiosImgModel.js";
+import CustomizedAlert from "./CustomizedAlert.jsx";
 
 const DisplayResults = ({result, show, setShow, video = false}) => {
     const [resultVideo, setResultVideo] = useState(null);
+    const [loading, setLoading] = useState(false);
     const getVideo = async () => {
         console.log("get video")
+        setLoading(true);
         await axiosImgModel.get(`/getVideo/${result?.videoResult}`, {
             responseType: "blob",
         }).then((res) => {
             setResultVideo(res.data);
+            setLoading(false);
         }).catch((err) => {
             console.error(err);
+            setLoading(false);
         });
     }
     useEffect(() => {
@@ -39,7 +44,8 @@ const DisplayResults = ({result, show, setShow, video = false}) => {
                     <img src={URL?.createObjectURL(base64ToImg(result?.resultImage || result?.image))} alt={"result"}
                          className={"w-full h-full"}/>
                 </CustomAccordion>}
-                {resultVideo && <CustomAccordion header={"Result Video"} eventKey={"1"}>
+                {(result&&video) && <CustomAccordion header={"Result Video"} eventKey={"1"}>
+                    {loading ?<>
                     <a
                         download={"result.mp4"}
                         target={"_blank"}
@@ -48,6 +54,7 @@ const DisplayResults = ({result, show, setShow, video = false}) => {
                         <Download/>
                     </a>
                     <video src={URL.createObjectURL(resultVideo)} controls className={"w-full h-full"}/>
+                    </>:<CustomizedAlert variant={"info"} msg={"loading..."} spinner />}
                 </CustomAccordion>}
 
                 {result?.diseases && <CustomAccordion header={"Disease"} eventKey={"2"}>
