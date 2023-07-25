@@ -1,13 +1,9 @@
 import axios from "../api/axios";
 import { toastMsg } from "../components/message-toast";
 
-const handleLogout = async (
-  auth,
-  setAuth,
-  setLoading,
-  navigate
-) => {
+const handleLogout = async (auth, setAuth, setLoading, navigate) => {
   setLoading(true);
+  console.log("logout");
   await axios
     .post(
       "/logout",

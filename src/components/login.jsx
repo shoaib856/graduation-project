@@ -43,6 +43,7 @@ function Login({ show, onHide }) {
             token: res?.data.token,
             id: res?.data.user_id,
           });
+
           localStorage.setItem(
             "userIn",
             JSON.stringify({
@@ -51,18 +52,13 @@ function Login({ show, onHide }) {
               id: res?.data.user_id,
             })
           );
-            onHide();
+          onHide();
         })
         .catch((err) => {
-          if (
-            err.name === "AbortError" ||
-            abortController?.signal.aborted ||
-            err.name === "CanceledError"
-          ) {
-            console.log("Request canceled");
-          } else {
-            toastMsg("error", err.response.data.message.toString());
+          if (abortController?.signal.aborted) {
+            return;
           }
+          toastMsg("error", err.response.data.message || "Error");
         });
     },
   });

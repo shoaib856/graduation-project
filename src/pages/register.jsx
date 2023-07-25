@@ -65,11 +65,11 @@ function Register() {
       confirmPassword: Yup.string()
         .required("Required")
         .oneOf([Yup.ref("password"), null], "Passwords must match"),
-      phoneNumber: Yup.string()
-        .required("Required")
-        .matches(/^[0-9]$/, "Phone number must be number")
-        .min(11, "at least 11 number")
-        .max(11, "at most 11 number"),
+      // phoneNumber: Yup.string()
+      //   .required("Required")
+      //   .matches(/^[0-9]$/, "Phone number must be number")
+      //   .min(11, "at least 11 number")
+      //   .max(11, "at most 11 number"),
       country: Yup.string().required("Required"),
       city: Yup.string().required("Required"),
       state: Yup.string().required("Required"),
@@ -82,7 +82,7 @@ function Register() {
     onSubmit: async (values) => {
       setLoader(true);
       await axios
-        .post(registerLocation ? "" : "/admin" + "/user", values, {
+        .post(registerLocation ? "/user" : "/admin" + "/user", values, {
           headers: {
             "Content-Type": "application/json",
             "x-auth-token": auth?.token,

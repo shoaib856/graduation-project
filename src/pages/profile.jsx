@@ -295,8 +295,9 @@ function Profile() {
                         <Button
                             variant="danger"
                             className="bg-red-500"
-                            onClick={() => {
-                                handleLogout(auth, setAuth, setLoading, navigate);
+                            onClick={async () => {
+                                await handleLogout(auth, setAuth, setLoading, navigate);
+                                setUserData(null)
                             }}
                             disabled={formik.isSubmitting || loading}
                         >
