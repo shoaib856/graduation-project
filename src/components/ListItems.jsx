@@ -289,7 +289,7 @@ const ItemInList = ({
                 </h2>
                 <div>
                     {
-                        item.numberOfPosts && (
+                        item.numberOfPosts!==null && (
                             <span className={"text-gray-400 capitalize"}>number of posts: {item?.numberOfPosts}</span>
                         )
                     }
